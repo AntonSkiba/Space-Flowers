@@ -1,22 +1,22 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoClient = require("mongodb").MongoClient;
+
+let mongoURL = "mongodb://localhost:27017/";
+let users;
+
+mongoClient.connect(
+  mongoURL,
+  { useNewUrlParser: true },
+  (err, client) => {
+    if (err) return console.log(err);
+    const db = client.db("spacecat");
+    users = db.collection("users");
+  }
+);
 
 let jsonParser = bodyParser.json();
 const app = express();
-
-let testEmails = [
-  "sao.skiba@gmail.com",
-  "anton.skiba@mail.ru",
-  "as.skiba@tensor.ru"
-];
-
-let testLogins = [
-  "Antoha5381",
-  "s41ba.meow",
-  "apr.lw.tch",
-  "login228",
-  "sukablyat"
-];
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -29,36 +29,32 @@ app.get("/", (req, res) => {
 app.get("/emailTest/:email", (req, res) => {
   let email = req.params.email;
   let isNewEmail = true;
-  for (let i = 0; i < testEmails.length; i++) {
-    if (email === testEmails[i]) {
-      isNewEmail = false;
-      break;
-    }
-  }
-  res.send(isNewEmail.toString());
+  users.findOne({ email: email }, (err, result) => {
+    if (result !== null) isNewEmail = false;
+    res.send(isNewEmail.toString());
+  });
 });
 
 app.get("/loginTest/:login", (req, res) => {
   let login = req.params.login;
   let isNewLogin = true;
-  for (let i = 0; i < testLogins.length; i++) {
-    if (login === testLogins[i]) {
-      isNewLogin = false;
-      break;
-    }
-  }
-  res.send(isNewLogin.toString());
+  users.findOne({ login: login }, (err, result) => {
+    if (result !== null) isNewLogin = false;
+    res.send(isNewLogin.toString());
+  });
 });
 
 app.post("/registration", jsonParser, (req, res) => {
   let newUser = req.body;
-  console.log(newUser);
-  res.send(
-    `Пользователь ${newUser.login}
-     с паролем ${newUser.password}
-     и эмейлом ${newUser.email}
-     зарегистрирован :3`
-  );
+  let message;
+  users.insertOne(newUser, (err, result) => {
+    if (err) {
+      message = "Произошла ошибка :(\n повторите попытку позже...";
+    } else {
+      message = `Добро пожаловать ${newUser.login}`;
+    }
+    res.send(message);
+  });
 });
 
 app.listen(3000, function() {
