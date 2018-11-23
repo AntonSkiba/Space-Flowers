@@ -1,0 +1,11 @@
+.registration_form .container {
+  width: 700px;
+  min-width: 700px;
+}
+.registration_form .row {
+  margin: 10px 0px;
+}
+
+.registration_form .label {
+  text-align: right;
+}

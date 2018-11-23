@@ -1,0 +1,51 @@
+<link rel="stylesheet" href="/public/entryPages/pages/registration/css/registration.css">
+
+<div class="registration_form" id="regForm">
+  <div class="container">
+    <div class="row">
+      <div class="col-12" style="height: 40px;">
+        <span class="errorString" id="errorRegistration"></span>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-3 label">
+        <span>Логин</span>
+      </div>
+      <div class="col-9">
+        <input type="login" class="form-control" id="newLogin" placeholder="Введите логин...">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-3 label">
+        <span>Пароль</span>
+      </div>
+      <div class="col-9">
+        <input type="password" class="form-control" id="newPassword" placeholder="Введите пароль...">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-3 label">
+        <span>Повторите пароль</span>
+      </div>
+      <div class="col-9">
+        <input type="password" class="form-control" id="reNewPassword" placeholder="Введите пароль...">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-3 label">
+        <span>E-mail</span>
+      </div>
+      <div class="col-9">
+        <input type="email" class="form-control" id="newEmail" aria-describedby="emailHelp" placeholder="Введите email...">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-8"></div>
+      <div class="col-4">
+        <button id="regSubmit" type="button" class="btn btn-light btn-block">Регистрация</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/public/entryPages/pages/registration/js/registration.js" charset="utf-8"></script>
