@@ -1,6 +1,13 @@
 let submit = document.getElementById("regSubmit");
 let errorRegistration = document.getElementById("errorRegistration");
 
+document.addEventListener("keydown", event => {
+  if (event.keyCode === 13) {
+    let click = new Event("click");
+    submit.dispatchEvent(click);
+  }
+});
+
 submit.addEventListener("click", () => {
   let form = {
     login: document.getElementById("newLogin"),
@@ -16,20 +23,23 @@ function filledTest(form) {
   for (let item in form) {
     if (form[item].value === "") {
       form[item].style.borderColor = "#ff6161";
-      errorRegistration.innerHTML = "Все поля должны быть заполнены.";
       isValidate = false;
     } else {
       form[item].style.borderColor = "#ced4da";
-      errorRegistration.innerHTML = "";
     }
   }
-  if (isValidate) emailTest(form);
+  if (isValidate) {
+    errorRegistration.innerHTML = "";
+    emailTest(form);
+  } else {
+    errorRegistration.innerHTML = "Все поля должны быть заполнены.";
+  }
 }
 
 function emailTest(form) {
   let email = form.email;
-  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  if (re.test(email.value.toLowerCase())) {
+  let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  if (re.test(email.value)) {
     fetch(`/emailTest/${email.value}`, {
       method: "GET"
     })
@@ -56,22 +66,29 @@ function emailTest(form) {
 
 function loginTest(form) {
   let login = form.login;
-  fetch(`/loginTest/${login.value}`, {
-    method: "GET"
-  })
-    .then(response => {
-      return response.text();
+  let loginReg = /^[a-zA-Z][a-zA-Z0-9-_\.]{4,20}$/;
+  if (loginReg.test(form.login.value)) {
+    fetch(`/loginTest/${login.value}`, {
+      method: "GET"
     })
-    .then(isNewLogin => {
-      if (isNewLogin === "true") {
-        errorRegistration.innerHTML = "";
-        login.style.borderColor = "#ced4da";
-        passwordTest(form);
-      } else {
-        login.style.borderColor = "#ff6161";
-        errorRegistration.innerHTML = "Логин уже занят.";
-      }
-    });
+      .then(response => {
+        return response.text();
+      })
+      .then(isNewLogin => {
+        if (isNewLogin === "true") {
+          errorRegistration.innerHTML = "";
+          login.style.borderColor = "#ced4da";
+          passwordTest(form);
+        } else {
+          login.style.borderColor = "#ff6161";
+          errorRegistration.innerHTML = "Логин уже занят.";
+        }
+      });
+  } else {
+    login.style.borderColor = "#ff6161";
+    errorRegistration.innerHTML =
+      'Логин может содержать только латинские буквы и цифры, а также знаки "<b style="color: #bbe7ff">_ - .</b>" . ';
+  }
 }
 
 function passwordTest(form) {
@@ -127,7 +144,6 @@ function sentPostRequest(form) {
     password: form.password.value,
     email: form.email.value
   };
-  console.log(newUser);
   fetch("/registration", {
     method: "POST",
     headers: {

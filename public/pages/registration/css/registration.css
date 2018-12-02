@@ -1,7 +1,12 @@
-.registration_form .container {
-  width: 700px;
+.registration_form {
+  color: #ffffff;
+  width: 800px;
   min-width: 700px;
+  min-height: 320px;
+  height: auto;
+  margin: 200px auto;
 }
+
 .registration_form .row {
   margin: 10px 0px;
 }
