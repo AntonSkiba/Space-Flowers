@@ -7,7 +7,7 @@ if (port == null || port == "") {
   port = 3000;
 }
 
-let mongoURL = "mongodb://localhost:27017/";
+let mongoURL = "mongodb://anton.skiba@mail.ru:Anton20teen@95.163.210.38/";
 let users;
 
 mongoClient.connect(
@@ -15,7 +15,7 @@ mongoClient.connect(
   { useNewUrlParser: true },
   (err, client) => {
     if (err) return console.log(err);
-    const db = client.db("spacecat");
+    const db = client.db("spaceflowers");
     users = db.collection("users");
   }
 );
