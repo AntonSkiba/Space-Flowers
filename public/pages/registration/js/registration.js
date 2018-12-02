@@ -156,6 +156,9 @@ function sentPostRequest(form) {
       return response.text();
     })
     .then(message => {
-      document.cookie = `auth=${message}`;
+      let auth = message.split("____")[1];
+      let login = message.split("____")[0];
+      document.cookie = `auth=${auth}`;
+      window.location.href = `/user/${login}`;
     });
 }

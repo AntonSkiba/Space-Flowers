@@ -7,7 +7,7 @@ if (port == null || port == "") {
   port = 3000;
 }
 
-let mongoURL = "mongodb://anton.skiba@mail.ru:Anton20teen@95.163.210.38/";
+let mongoURL = "mongodb://localhost:27017/";
 let users;
 
 mongoClient.connect(
@@ -15,7 +15,7 @@ mongoClient.connect(
   { useNewUrlParser: true },
   (err, client) => {
     if (err) return console.log(err);
-    const db = client.db("spaceflowers");
+    const db = client.db("spacecat");
     users = db.collection("users");
   }
 );
@@ -29,15 +29,27 @@ app.use("/public", express.static(__dirname + "/public"));
 
 // pages
 app.get("/", (req, res) => {
-  res.render("pages/registration", {
-    header: {
-      registration: "active",
-      authorization: "",
-      logout: "hidden",
-      myProfile: "hidden",
-      myLogin: ""
-    }
-  });
+  let cookies = parseCookies(req);
+  if (cookies.auth === undefined || cookies.auth === "undefined") {
+    res.render("pages/authorization", {
+      header: {
+        registration: "",
+        authorization: "active",
+        logout: "hidden",
+        myProfile: "hidden",
+        myLogin: ""
+      }
+    });
+  } else {
+    users.findOne({ authorization: cookies.auth }, (err, result) => {
+      if (err) {
+        res.cookie("auth", undefined);
+        res.redirect("/");
+      } else {
+        res.redirect(`/user/${result.login}`);
+      }
+    });
+  }
 });
 
 app.get("/registration", (req, res) => {
@@ -96,7 +108,7 @@ app.post("/registration", jsonParser, (req, res) => {
     if (err) {
       res.send("Произошла ошибка :(\n повторите попытку позже...");
     } else {
-      res.send(newUser.authorization);
+      res.send(newUser.login + "____" + newUser.authorization);
     }
   });
 });
@@ -131,40 +143,29 @@ function authHash(login, password) {
 }
 
 // profile
-app.get("/user/:login", (req, res) => {
+let headers = {
+  isGuest: {
+    registration: "",
+    authorization: "",
+    logout: "hidden",
+    myProfile: "hidden",
+    myLogin: ""
+  },
+  isUser: {
+    registration: "hidden",
+    authorization: "hidden",
+    logout: "",
+    myProfile: "",
+    myLogin: ""
+  },
+  anotherUser: {}
+};
+
+app.get("/user/:login", (req, res, next) => {
   let cookies = parseCookies(req);
-  let headers = {
-    isGuest: {
-      registration: "",
-      authorization: "",
-      logout: "hidden",
-      myProfile: "hidden",
-      myLogin: ""
-    },
-    isUser: {
-      registration: "hidden",
-      authorization: "hidden",
-      logout: "",
-      myProfile: "",
-      myLogin: ""
-    },
-    anotherUser: {}
-  };
   users.findOne({ login: req.params.login }, (err, result) => {
     if (result === null) {
-      users.findOne({ authorization: cookies.auth }, (err, myProfile) => {
-        if (myProfile === null) {
-          res.render("errors/error404", {
-            header: headers.isGuest
-          });
-        } else {
-          let isUser = headers.isUser;
-          isUser.myLogin = myProfile.login;
-          res.render("errors/error404", {
-            header: isUser
-          });
-        }
-      });
+      next();
     } else if (cookies.auth === undefined || cookies.auth === "undefined") {
       res.render("pages/profile", {
         header: headers.isGuest,
@@ -202,6 +203,24 @@ function parseCookies(request) {
 
   return list;
 }
+
+app.use(function(req, res, next) {
+  let cookies = parseCookies(req);
+  res.status(404);
+  users.findOne({ authorization: cookies.auth }, (err, myProfile) => {
+    if (myProfile === null) {
+      res.render("errors/error404", {
+        header: headers.isGuest
+      });
+    } else {
+      let isUser = headers.isUser;
+      isUser.myLogin = myProfile.login;
+      res.render("errors/error404", {
+        header: isUser
+      });
+    }
+  });
+});
 
 app.listen(port, function() {
   console.log("server started");

@@ -41,3 +41,11 @@ body {
 .errorString {
   color: #ff6161;
 }
+
+.error_page {
+  color: #c898ff;
+  font-size: 70px;
+  margin-top: 300px;
+  text-align: center;
+  width: 100%;
+}
