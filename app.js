@@ -2,6 +2,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const mongoClient = require("mongodb").MongoClient;
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3000;
+}
 
 let mongoURL = "mongodb://localhost:27017/";
 let users;
@@ -199,6 +203,6 @@ function parseCookies(request) {
   return list;
 }
 
-app.listen(3000, function() {
+app.listen(port, function() {
   console.log("server started");
 });
