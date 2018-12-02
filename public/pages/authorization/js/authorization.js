@@ -57,7 +57,10 @@ function authorization(form) {
         form.password.style.borderColor = "#ff6161";
         errorAuthorization.innerHTML = errText;
       } else {
-        window.location.href = `/user/${message}`;
+        let auth = message.split("____")[1];
+        let login = message.split("____")[0];
+        document.cookie = `auth=${auth}`;
+        window.location.href = `/user/${login}`;
       }
     });
 }

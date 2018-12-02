@@ -156,7 +156,6 @@ function sentPostRequest(form) {
       return response.text();
     })
     .then(message => {
-      let regForm = document.getElementById("regForm");
-      regForm.innerHTML = message;
+      document.cookie = `auth=${message}`;
     });
 }

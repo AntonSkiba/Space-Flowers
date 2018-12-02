@@ -29,27 +29,35 @@ app.get("/", (req, res) => {
     header: {
       registration: "active",
       authorization: "",
-      logout: "hidden"
+      logout: "hidden",
+      myProfile: "hidden",
+      myLogin: ""
     }
   });
 });
 
 app.get("/registration", (req, res) => {
+  res.cookie("auth", undefined);
   res.render("pages/registration", {
     header: {
       registration: "active",
       authorization: "",
-      logout: "hidden"
+      logout: "hidden",
+      myProfile: "hidden",
+      myLogin: ""
     }
   });
 });
 
 app.get("/authorization", (req, res) => {
+  res.cookie("auth", undefined);
   res.render("pages/authorization", {
     header: {
       registration: "",
       authorization: "active",
-      logout: "hidden"
+      logout: "hidden",
+      myProfile: "hidden",
+      myLogin: ""
     }
   });
 });
@@ -75,18 +83,17 @@ app.get("/loginTest/:login", (req, res) => {
 
 app.post("/registration", jsonParser, (req, res) => {
   let newUser = req.body;
-  let hashPass = newUser.password;
   let salt = bcrypt.genSaltSync(10);
-  newUser.password = bcrypt.hashSync(hashPass, salt);
+  newUser.password = bcrypt.hashSync(newUser.password, salt);
+  newUser.authorization = authHash(newUser.login, newUser.password);
 
   let message;
   users.insertOne(newUser, (err, result) => {
     if (err) {
-      message = "Произошла ошибка :(\n повторите попытку позже...";
+      res.send("Произошла ошибка :(\n повторите попытку позже...");
     } else {
-      message = `Добро пожаловать ${newUser.login}`;
+      res.send(newUser.authorization);
     }
-    res.send(message);
   });
 });
 
@@ -94,12 +101,16 @@ app.post("/registration", jsonParser, (req, res) => {
 app.post("/authorization", jsonParser, (req, res) => {
   let user = req.body;
   let searchUser = user.isEmail ? { email: user.login } : { login: user.login };
-  console.log(searchUser);
   users.findOne(searchUser, (err, result) => {
     if (result !== null) {
       bcrypt.compare(user.password, result.password).then(isUser => {
         if (isUser) {
-          res.send(result.login);
+          let auth = authHash(result.login, result.password);
+          users.updateOne(
+            { login: result.login },
+            { $set: { authorization: auth } }
+          );
+          res.send(result.login + "____" + auth);
         } else {
           res.send("false");
         }
@@ -110,20 +121,83 @@ app.post("/authorization", jsonParser, (req, res) => {
   });
 });
 
+function authHash(login, password) {
+  let saltAuth = bcrypt.genSaltSync(10);
+  return bcrypt.hashSync(login + password, saltAuth);
+}
+
 // profile
 app.get("/user/:login", (req, res) => {
+  let cookies = parseCookies(req);
+  let headers = {
+    isGuest: {
+      registration: "",
+      authorization: "",
+      logout: "hidden",
+      myProfile: "hidden",
+      myLogin: ""
+    },
+    isUser: {
+      registration: "hidden",
+      authorization: "hidden",
+      logout: "",
+      myProfile: "",
+      myLogin: ""
+    },
+    anotherUser: {}
+  };
   users.findOne({ login: req.params.login }, (err, result) => {
-    console.log(result);
-    res.render("pages/profile", {
-      header: {
-        registration: "hidden",
-        authorization: "hidden",
-        logout: ""
-      },
-      user: result
-    });
+    if (result === null) {
+      users.findOne({ authorization: cookies.auth }, (err, myProfile) => {
+        if (myProfile === null) {
+          res.render("errors/error404", {
+            header: headers.isGuest
+          });
+        } else {
+          let isUser = headers.isUser;
+          isUser.myLogin = myProfile.login;
+          res.render("errors/error404", {
+            header: isUser
+          });
+        }
+      });
+    } else if (cookies.auth === undefined || cookies.auth === "undefined") {
+      res.render("pages/profile", {
+        header: headers.isGuest,
+        user: result
+      });
+    } else if (cookies.auth === result.authorization) {
+      let isUserProfile = headers.isUser;
+      isUserProfile.myProfile = "active";
+      isUserProfile.myLogin = result.login;
+      res.render("pages/profile", {
+        header: isUserProfile,
+        user: result
+      });
+    } else {
+      users.findOne({ authorization: cookies.auth }, (err, myProfile) => {
+        let isAnotherUser = headers.isUser;
+        isAnotherUser.myLogin = myProfile.login;
+        res.render("pages/profile", {
+          header: isAnotherUser,
+          user: result
+        });
+      });
+    }
   });
 });
+
+function parseCookies(request) {
+  let list = {};
+  let rc = request.headers.cookie;
+  rc &&
+    rc.split(";").forEach(function(cookie) {
+      var parts = cookie.split("=");
+      list[parts.shift().trim()] = decodeURI(parts.join("="));
+    });
+
+  return list;
+}
 
 app.listen(3000, function() {
   console.log("server started");
