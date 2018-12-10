@@ -1,0 +1,128 @@
+#newBackground {
+  border-bottom: 2px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  height: 260px;
+  background-color: white;
+  padding: 20px;
+  z-index: 0;
+  transition: 0.2s ease-in-out;
+  position: relative;
+}
+
+#newPhoto {
+  position: absolute;
+  top: 75px;
+  left: 30px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  width: 250px;
+  height: 400px;
+  background-color: white;
+  z-index: 1;
+  transition: 0.2s ease-in-out;
+}
+
+#newBackground.highlight::after,
+#newPhoto.highlight::after {
+  content: "+";
+  display: inline-block;
+  font-size: 70px;
+  position: absolute;
+}
+#newBackground.highlight::after {
+  top: 100px;
+  left: 47%;
+}
+
+#newPhoto.highlight::after {
+  top: 140px;
+  left: 40%;
+}
+
+#newBackground.highlight::before,
+#newPhoto.highlight::before {
+  content: "Нажмите или перетащите картинку";
+  display: inline-block;
+  font-size: 14px;
+  position: absolute;
+}
+#newBackground.highlight::before {
+  top: 180px;
+  left: 39%;
+}
+
+#newPhoto.highlight::before {
+  top: 220px;
+  left: 5%;
+}
+
+#newBackground.highlight,
+#newPhoto.highlight {
+  cursor: pointer;
+  -webkit-filter: brightness(60%);
+  -moz-filter: brightness(60%);
+  -o-filter: brightness(60%);
+  -ms-filter: brightness(60%);
+  filter: brightness(60%);
+  border-color: var(--header-color);
+}
+#backImage,
+#userImage {
+  display: none;
+}
+
+.description {
+  margin-top: 10px;
+  height: auto;
+  width: auto;
+  margin-left: 300px;
+  margin-right: 20px;
+}
+.description .descArea {
+  transition: 0.2s ease-in-out;
+  border-radius: 5px;
+  border: 2px solid #ccc;
+}
+
+.description .descArea:hover {
+  border: 2px solid var(--header-color);
+}
+
+.description .descArea:focus {
+  border: 2px solid var(--header-color);
+}
+
+.description .label {
+  font-size: 14px;
+  color: #a1a1a1;
+}
+
+.description .name {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--header-color);
+}
+
+.operations {
+  margin-top: 40px;
+  width: auto;
+  margin-left: 300px;
+  margin-right: 20px;
+}
+
+.operations .btn {
+  border: 1px solid var(--active-color);
+  background-color: white;
+  color: var(--header-color);
+  margin-left: 20px;
+}
+
+.operations .btn:hover {
+  background-color: var(--active-color);
+}
+
+#descArea {
+  width: 100%;
+  resize: none;
+}

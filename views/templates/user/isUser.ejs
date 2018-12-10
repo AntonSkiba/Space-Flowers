@@ -1,0 +1,45 @@
+<div id="profileHeader">
+  <link rel="stylesheet" href="/public/pages/user/isUser/header.css" />
+
+  <div id="userBackground">
+    <span id="editBtn">
+      <img src="/public/pages/user/icons/edit.svg" alt="" width="50px" height="50px">
+    </span>
+  </div>
+  <div id="userPhoto">
+
+  </div>
+  <div class="userDescription">
+    <span class="name">
+      <%= user.login %>
+    </span><br />
+    <span class="label">О себе</span><br />
+    <span class="descArea"></span>
+  </div>
+
+  <script src="/public/pages/user/isUser/header.js" charset="utf-8"></script>
+</div>
+
+<div id="edit">
+  <link rel="stylesheet" href="/public/pages/user/isUser/edit.css" />
+
+  <div class=" dropImages" id="newBackground">
+    <input type="file" id="backImage" accept="image/jpeg,image/png" onchange="handleImages(this.files[0], 0)">
+  </div>
+  <div class="dropImages" id="newPhoto">
+    <input type="file" id="userImage" accept="image/jpeg,image/png" onchange="handleImages(this.files[0], 1)">
+  </div>
+  <div class="description">
+    <span class="name">
+      <%= user.login %>
+    </span><br />
+    <span class="label">О себе</span><br />
+    <textarea type="text" id="descArea" class="descArea" wrap="hard" rows="2"></textarea>
+  </div>
+  <div class="operations">
+    <button type="button" id="cancelBtn" class="btn float-right">Отмена</button>
+    <button type="button" id="saveEditBtn" class="btn float-right">Сохранить</button>
+  </div>
+
+  <script src="/public/pages/user/isUser/edit.js" charset="utf-8"></script>
+</div>

@@ -2,6 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const mongoClient = require("mongodb").MongoClient;
+const multer = require("multer");
+const path = require("path");
+
 let port = process.env.PORT;
 if (port == null || port == "") {
   port = 3000;
@@ -42,7 +45,7 @@ app.get("/", (req, res) => {
     });
   } else {
     users.findOne({ authorization: cookies.auth }, (err, result) => {
-      if (err) {
+      if (result === null) {
         res.cookie("auth", undefined);
         res.redirect("/");
       } else {
@@ -155,10 +158,16 @@ let headers = {
     registration: "hidden",
     authorization: "hidden",
     logout: "",
-    myProfile: "",
+    myProfile: "active",
     myLogin: ""
   },
-  anotherUser: {}
+  anotherUser: {
+    registration: "hidden",
+    authorization: "hidden",
+    logout: "",
+    myProfile: "",
+    myLogin: ""
+  }
 };
 
 app.get("/user/:login", (req, res, next) => {
@@ -167,31 +176,78 @@ app.get("/user/:login", (req, res, next) => {
     if (result === null) {
       next();
     } else if (cookies.auth === undefined || cookies.auth === "undefined") {
-      res.render("pages/profile", {
+      res.render("pages/user", {
         header: headers.isGuest,
-        user: result
+        user: result,
+        isUser: false
       });
     } else if (cookies.auth === result.authorization) {
       let isUserProfile = headers.isUser;
-      isUserProfile.myProfile = "active";
       isUserProfile.myLogin = result.login;
-      res.render("pages/profile", {
+      res.render("pages/user", {
         header: isUserProfile,
-        user: result
+        user: result,
+        isUser: true
       });
     } else {
       users.findOne({ authorization: cookies.auth }, (err, myProfile) => {
-        let isAnotherUser = headers.isUser;
+        let isAnotherUser = headers.anotherUser;
         isAnotherUser.myLogin = myProfile.login;
-        res.render("pages/profile", {
+        res.render("pages/user", {
           header: isAnotherUser,
-          user: result
+          user: result,
+          isUser: false
         });
       });
     }
   });
 });
 
+// edit profile
+
+let storage = multer.diskStorage({
+  destination: __dirname + "/imagesOfUsers",
+  filename: function(req, file, cb) {
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    );
+  }
+});
+
+function returnStorage(login) {
+  return multer.diskStorage({
+    destination: __dirname + `/imagesOfUsers/${login}`,
+    filename: function(req, file, cb) {
+      cb(null, file.fieldname + "-" + login + path.extname(file.originalname));
+    }
+  });
+}
+
+app.post("/updateUserProfile", (req, res) => {
+  let cookies = parseCookies(req);
+  users.findOne({ authorization: cookies.auth }, (err, profile) => {
+    if (err || profile === null) {
+      res.send("Произошел троллинг :)))000))0");
+    } else {
+      let storage = returnStorage(profile.login);
+      let upload = multer({
+        storage: storage
+      }).fields([{ name: "background" }, { name: "photo" }]);
+
+      upload(req, res, err => {
+        if (err) {
+          res.send("Произошел троллинг с загрузкой картинок :)))000))0");
+        } else {
+          console.log(req.files);
+          res.send("Сохранилось!!!");
+        }
+      });
+    }
+  });
+});
+
+// other
 function parseCookies(request) {
   let list = {};
   let rc = request.headers.cookie;
@@ -213,7 +269,7 @@ app.use(function(req, res, next) {
         header: headers.isGuest
       });
     } else {
-      let isUser = headers.isUser;
+      let isUser = headers.anotherUser;
       isUser.myLogin = myProfile.login;
       res.render("errors/error404", {
         header: isUser

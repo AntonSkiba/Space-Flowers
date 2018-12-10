@@ -1,0 +1,44 @@
+#userBackground {
+  border-radius: 5px;
+  background-color: black;
+  width: 100%;
+  height: 260px;
+  padding: 20px;
+  z-index: 0;
+  position: relative;
+}
+
+#userPhoto {
+  position: absolute;
+  top: 75px;
+  left: 30px;
+  border: 2px solid white;
+  border-radius: 5px;
+  width: 250px;
+  height: 400px;
+  background-color: black;
+  z-index: 1;
+  transition: 0.2s ease-in-out;
+}
+
+.userDescription {
+  margin-top: 10px;
+  height: auto;
+  width: auto;
+  margin-left: 300px;
+  margin-right: 20px;
+}
+.userDescription .descArea {
+  border-radius: 5px;
+}
+
+.userDescription .label {
+  font-size: 14px;
+  color: #a1a1a1;
+}
+
+.userDescription .name {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--header-color);
+}

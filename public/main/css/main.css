@@ -1,24 +1,28 @@
+:root {
+}
 body {
-  background-image: url("../img/background.png");
-  background-size: cover;
+  --main-color: #060e24;
+  --active-color: #d4affe;
+  --header-color: #0e225d;
+  --some-color: #83acec;
+  background-color: var(--main-color) !important;
 }
 
 .header {
-  background-color: #172172;
-  overflow: hidden;
+  background-color: var(--header-color);
   position: absolute;
 }
 
 .header .header_link {
-  color: #ffffff;
+  color: white;
 }
 
 .header .header_link:hover {
-  color: #d4affe;
+  color: var(--active-color);
 }
 
 .header .active {
-  color: #d4affe;
+  color: var(--active-color);
 }
 
 .header .hidden {
@@ -27,25 +31,50 @@ body {
 
 .header .name_link {
   font-size: 30px;
-  background: linear-gradient(45deg, #b483ec 15%, #c6d9ff 50%, #0d61bc);
+  background: linear-gradient(
+    45deg,
+    var(--active-color) 25%,
+    white 35%,
+    var(--some-color)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: bold;
-  color: #83acec;
+  color: var(--some-color);
 }
 
 .header .header_menu {
   justify-content: flex-end;
 }
 
-.errorString {
-  color: #ff6161;
+.header .profile_menu {
+  width: 200px;
+  padding: 10px 20px;
+  background-color: var(--header-color);
+  border: 1px solid var(--main-color);
+  animation: menu 0.3s;
+}
+
+.header .profile_menu .divider {
+  height: 1px;
+  background-color: var(--active-color);
 }
 
 .error_page {
-  color: #c898ff;
+  color: var(--active-color);
   font-size: 70px;
   margin-top: 300px;
   text-align: center;
   width: 100%;
+}
+
+@keyframes menu {
+  0% {
+    margin-top: -20px;
+    opacity: 0;
+  }
+  100% {
+    margin-top: 0px;
+    opacity: 1;
+  }
 }
