@@ -1,30 +1,62 @@
+#photoContainer {
+  position: absolute;
+  top: 75px;
+  left: 30px;
+  width: 250px;
+  height: 400px;
+  z-index: 1;
+}
+
+#backgroundContainer {
+  position: relative;
+  width: 100%;
+  height: 262px;
+  z-index: 0;
+}
+
+.deleteBtn {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  top: 5px;
+  transition: 0.2s ease-in-out;
+}
+
+.deleteBtn.deleteBackground {
+  left: 96%;
+}
+.deleteBtn.deletePhoto {
+  left: 210px;
+}
+
+.deleteBtn:hover {
+  filter: saturate(500%);
+  cursor: pointer;
+}
+
 #newBackground {
+  width: 100%;
+  height: 100%;
   border-bottom: 2px solid #ccc;
   border-radius: 5px;
-  width: 100%;
-  height: 260px;
-  background-color: white;
-  padding: 20px;
-  z-index: 0;
+  background-size: cover;
   transition: 0.2s ease-in-out;
   position: relative;
 }
 
 #newPhoto {
-  position: absolute;
-  top: 75px;
-  left: 30px;
+  width: 100%;
+  height: 100%;
+  position: relative;
   border: 2px solid #ccc;
   border-radius: 5px;
-  width: 250px;
-  height: 400px;
-  background-color: white;
-  z-index: 1;
+  background-size: cover;
   transition: 0.2s ease-in-out;
 }
 
 #newBackground.highlight::after,
 #newPhoto.highlight::after {
+  color: white;
   content: "+";
   display: inline-block;
   font-size: 70px;
@@ -42,6 +74,8 @@
 
 #newBackground.highlight::before,
 #newPhoto.highlight::before {
+  filter: saturate(500%);
+  color: white;
   content: "Нажмите или перетащите картинку";
   display: inline-block;
   font-size: 14px;
@@ -60,11 +94,11 @@
 #newBackground.highlight,
 #newPhoto.highlight {
   cursor: pointer;
-  -webkit-filter: brightness(60%);
-  -moz-filter: brightness(60%);
-  -o-filter: brightness(60%);
-  -ms-filter: brightness(60%);
-  filter: brightness(60%);
+  -webkit-filter: brightness(40%);
+  -moz-filter: brightness(40%);
+  -o-filter: brightness(40%);
+  -ms-filter: brightness(40%);
+  filter: brightness(40%);
   border-color: var(--header-color);
 }
 #backImage,
@@ -73,13 +107,15 @@
 }
 
 .description {
-  margin-top: 10px;
+  margin-top: 8px;
   height: auto;
   width: auto;
-  margin-left: 300px;
+  margin-left: 296px;
   margin-right: 20px;
 }
 .description .descArea {
+  font-family: "Roboto", sans-serif;
+  font-size: 16px;
   transition: 0.2s ease-in-out;
   border-radius: 5px;
   border: 2px solid #ccc;
@@ -90,15 +126,18 @@
 }
 
 .description .descArea:focus {
+  outline: none;
   border: 2px solid var(--header-color);
 }
 
 .description .label {
+  margin-left: 4px;
   font-size: 14px;
   color: #a1a1a1;
 }
 
 .description .name {
+  margin-left: 4px;
   font-size: 28px;
   font-weight: bold;
   color: var(--header-color);

@@ -1,40 +1,50 @@
 <div id="profileHeader">
   <link rel="stylesheet" href="/public/pages/user/isUser/header.css" />
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
   <div id="userBackground">
+    <% if(isUser) { %>
     <span id="editBtn">
       <img src="/public/pages/user/icons/edit.svg" alt="" width="50px" height="50px">
     </span>
+    <% } %>
   </div>
-  <div id="userPhoto">
-
-  </div>
+  <div id="userPhoto"></div>
   <div class="userDescription">
-    <span class="name">
+    <span class="name" id="username">
       <%= user.login %>
     </span><br />
+    <% if (user.description) { %>
     <span class="label">О себе</span><br />
-    <span class="descArea"></span>
+    <pre class="descArea" id="userDesc"><%= user.description %></pre>
+    <% } %>
   </div>
 
   <script src="/public/pages/user/isUser/header.js" charset="utf-8"></script>
 </div>
 
+<% if(isUser) { %>
 <div id="edit">
   <link rel="stylesheet" href="/public/pages/user/isUser/edit.css" />
 
-  <div class=" dropImages" id="newBackground">
-    <input type="file" id="backImage" accept="image/jpeg,image/png" onchange="handleImages(this.files[0], 0)">
+  <div id="backgroundContainer">
+    <div class=" dropImages" id="newBackground">
+      <input type="file" id="backImage" accept="image/jpeg,image/png" onchange="handleImages(this.files[0], 0)">
+    </div>
+    <!-- <div id="deleteBackground" class="deleteBtn deleteBackground"><img src="/public/pages/user/icons/delete.svg" alt="" width="30px" height="30px"></div> -->
   </div>
-  <div class="dropImages" id="newPhoto">
-    <input type="file" id="userImage" accept="image/jpeg,image/png" onchange="handleImages(this.files[0], 1)">
+  <div id="photoContainer">
+    <div class="dropImages" id="newPhoto">
+      <input type="file" id="userImage" accept="image/jpeg,image/png" onchange="handleImages(this.files[0], 1)">
+    </div>
+    <!-- <div id="deletePhoto" class="deleteBtn deletePhoto"><img src="/public/pages/user/icons/delete.svg" alt="" width="30px" height="30px"></div> -->
   </div>
   <div class="description">
     <span class="name">
       <%= user.login %>
     </span><br />
     <span class="label">О себе</span><br />
-    <textarea type="text" id="descArea" class="descArea" wrap="hard" rows="2"></textarea>
+    <textarea type="text" id="descArea" class="descArea" rows="2" placeholder="Введите информацию о себе..."></textarea>
   </div>
   <div class="operations">
     <button type="button" id="cancelBtn" class="btn float-right">Отмена</button>
@@ -43,3 +53,4 @@
 
   <script src="/public/pages/user/isUser/edit.js" charset="utf-8"></script>
 </div>
+<% } %>

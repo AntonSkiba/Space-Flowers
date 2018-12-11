@@ -19,18 +19,14 @@ saveEditBtn.addEventListener("click", () => {
     })
     .then(mess => {
       console.log(mess);
+      window.location.href = `/user/${mess}`;
     });
-  togglePages();
 });
 
 cancelBtn.addEventListener("click", () => {
-  togglePages();
-});
-
-function togglePages() {
   document.getElementById("profileHeader").style.display = "block";
   document.getElementById("edit").style.display = "none";
-}
+});
 
 newBackground.addEventListener("click", () => {
   let click = new MouseEvent("click");
@@ -83,7 +79,6 @@ newPhoto.addEventListener("drop", dropUserImage, false);
 function dropBackgroundImage(e) {
   let dt = e.dataTransfer;
   let file = dt.files[0];
-  console.log(file);
   handleImages(file, 0);
 }
 
@@ -94,16 +89,19 @@ function dropUserImage(e) {
 }
 
 function handleImages(file, area) {
-  if (typeof file == "object") {
+  console.log(file);
+  if (
+    typeof file == "object" &&
+    (file.type == "image/jpeg" || file.type == "image/png")
+  ) {
     tempImages[area] = file;
     let reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = function() {
       let img = reader.result;
       let imgArea = document.getElementsByClassName("dropImages")[area];
-      imgArea.style.backgroundImage = `url("${img}")`;
+      imgArea.style.background = `url("${img}") center no-repeat`;
       imgArea.style.backgroundSize = "cover";
-      imgArea.style.backgroundRepeat = "no-repeat";
     };
   } else if (tempImages[area]) {
     let reader = new FileReader();
@@ -111,9 +109,8 @@ function handleImages(file, area) {
     reader.onloadend = function() {
       let img = reader.result;
       let imgArea = document.getElementsByClassName("dropImages")[area];
-      imgArea.style.backgroundImage = `url("${img}")`;
+      imgArea.style.background = `url("${img}") center no-repeat`;
       imgArea.style.backgroundSize = "cover";
-      imgArea.style.backgroundRepeat = "no-repeat";
     };
   }
 }

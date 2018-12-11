@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const mongoClient = require("mongodb").MongoClient;
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 
 let port = process.env.PORT;
 if (port == null || port == "") {
@@ -203,6 +204,21 @@ app.get("/user/:login", (req, res, next) => {
   });
 });
 
+app.get("/userProfile/:login/:type", (req, res) => {
+  let login = req.params.login;
+  let type = req.params.type;
+  users.findOne({ login: login }, (err, user) => {
+    if (user[type]) {
+      fs.exists(__dirname + user[type], exists => {
+        if (exists) res.sendFile(__dirname + user[type]);
+        else res.send("none");
+      });
+    } else {
+      res.send("none");
+    }
+  });
+});
+
 // edit profile
 
 let storage = multer.diskStorage({
@@ -217,7 +233,7 @@ let storage = multer.diskStorage({
 
 function returnStorage(login) {
   return multer.diskStorage({
-    destination: __dirname + `/imagesOfUsers/${login}`,
+    destination: `./imagesOfUsers/${login}`,
     filename: function(req, file, cb) {
       cb(null, file.fieldname + "-" + login + path.extname(file.originalname));
     }
@@ -239,13 +255,30 @@ app.post("/updateUserProfile", (req, res) => {
         if (err) {
           res.send("Произошел троллинг с загрузкой картинок :)))000))0");
         } else {
-          console.log(req.files);
-          res.send("Сохранилось!!!");
+          let updateObj = {};
+          for (let key in req.files) {
+            updateObj[key] = "/" + req.files[key][0].path.split("\\").join("/");
+          }
+          updateObj.description = req.body.description;
+          users.updateOne(
+            { login: profile.login },
+            {
+              $set: updateObj
+            }
+          );
+          res.send(profile.login);
         }
       });
     }
   });
 });
+
+function isEmpty(obj) {
+  for (let key in obj) {
+    return false;
+  }
+  return true;
+}
 
 // other
 function parseCookies(request) {
@@ -253,7 +286,7 @@ function parseCookies(request) {
   let rc = request.headers.cookie;
   rc &&
     rc.split(";").forEach(function(cookie) {
-      var parts = cookie.split("=");
+      let parts = cookie.split("=");
       list[parts.shift().trim()] = decodeURI(parts.join("="));
     });
 
