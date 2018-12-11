@@ -18,7 +18,6 @@ saveEditBtn.addEventListener("click", () => {
       return res.text();
     })
     .then(mess => {
-      console.log(mess);
       window.location.href = `/user/${mess}`;
     });
 });
@@ -116,7 +115,6 @@ function handleImages(file, area) {
 }
 
 function uploadFile(file, area) {
-  console.log(area);
   let formData = new FormData();
   formData.append("file", file);
   fetch("/updateUserPhoto", {

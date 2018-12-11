@@ -13,6 +13,9 @@ if (toggleOnEdit) {
       "dropImages"
     )[0].style.background = background;
     document.getElementsByClassName("dropImages")[1].style.background = photo;
-    document.getElementById("descArea").value = description;
+    document.getElementById("descArea").value = description.replace(
+      /<\/?[^>]+>/g,
+      ""
+    );
   });
 }

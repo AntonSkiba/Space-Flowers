@@ -59,7 +59,7 @@ function authorization(form) {
       } else {
         let auth = message.split("____")[1];
         let login = message.split("____")[0];
-        document.cookie = `auth=${auth}`;
+        document.cookie = `auth=${auth};expires=Sat, 31 Dec 2039 23:59:59 GMT`;
         window.location.href = `/user/${login}`;
       }
     });

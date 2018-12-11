@@ -35,10 +35,10 @@ app.use("/public", express.static(__dirname + "/public"));
 app.get("/", (req, res) => {
   let cookies = parseCookies(req);
   if (cookies.auth === undefined || cookies.auth === "undefined") {
-    res.render("pages/authorization", {
+    res.render("index", {
       header: {
         registration: "",
-        authorization: "active",
+        authorization: "",
         logout: "hidden",
         myProfile: "hidden",
         myLogin: ""
@@ -50,7 +50,17 @@ app.get("/", (req, res) => {
         res.cookie("auth", undefined);
         res.redirect("/");
       } else {
-        res.redirect(`/user/${result.login}`);
+        res.render("index", {
+          header: {
+            registration: "hidden",
+            authorization: "hidden",
+            logout: "",
+            myProfile: "",
+            myLogin: result.login
+          },
+          user: result,
+          isUser: true
+        });
       }
     });
   }
@@ -106,6 +116,7 @@ app.post("/registration", jsonParser, (req, res) => {
   let salt = bcrypt.genSaltSync(10);
   newUser.password = bcrypt.hashSync(newUser.password, salt);
   newUser.authorization = authHash(newUser.login, newUser.password);
+  newUser.updateDate = new Date();
 
   let message;
   users.insertOne(newUser, (err, result) => {
@@ -259,13 +270,23 @@ app.post("/updateUserProfile", (req, res) => {
           for (let key in req.files) {
             updateObj[key] = "/" + req.files[key][0].path.split("\\").join("/");
           }
-          updateObj.description = req.body.description;
-          users.updateOne(
-            { login: profile.login },
-            {
-              $set: updateObj
-            }
+          let linkRegular = /(https?:\/\/|ftp:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim;
+          let desc = req.body.description.replace(
+            linkRegular,
+            '<a href="$&">$&</a>'
           );
+          if (req.body.description !== desc) {
+            updateObj.description = desc;
+            updateObj.updateDate = new Date();
+          }
+          if (!isEmpty(updateObj)) {
+            users.updateOne(
+              { login: profile.login },
+              {
+                $set: updateObj
+              }
+            );
+          }
           res.send(profile.login);
         }
       });
@@ -273,12 +294,34 @@ app.post("/updateUserProfile", (req, res) => {
   });
 });
 
+// d
 function isEmpty(obj) {
   for (let key in obj) {
     return false;
   }
   return true;
 }
+
+//posts
+app.get("/posts", (req, res) => {
+  if (users) {
+    users
+      .find()
+      .sort({ updateDate: -1 })
+      .toArray((err, result) => {
+        if (err || result === null) res.send({ users: "none" });
+        else
+          res.send({
+            users: result.map(item => {
+              return {
+                login: item.login,
+                description: item.description ? item.description : ""
+              };
+            })
+          });
+      });
+  }
+});
 
 // other
 function parseCookies(request) {

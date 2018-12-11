@@ -1,4 +1,13 @@
 window.addEventListener("load", () => {
+  let desc = document.getElementById("userDesc");
+  if (desc) {
+    desc.innerHTML = desc.innerHTML
+      .split("&lt;")
+      .join("<")
+      .split("&gt;")
+      .join(">");
+    desc.style.display = "block";
+  }
   let login = document
     .getElementById("username")
     .innerHTML.split(" ")

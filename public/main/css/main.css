@@ -10,7 +10,10 @@ body {
 
 .header {
   background-color: var(--header-color);
-  position: absolute;
+  z-index: 10;
+  width: 100%;
+  top: 0px;
+  position: fixed !important;
 }
 
 .header .header_link {

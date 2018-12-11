@@ -41,7 +41,9 @@
   margin-left: 300px;
   margin-right: 20px;
 }
+
 .userDescription .descArea {
+  white-space: pre-wrap;
   margin-top: 4px;
   font-family: "Roboto", sans-serif;
   font-size: 16px;
