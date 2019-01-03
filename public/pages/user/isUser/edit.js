@@ -24,6 +24,7 @@ saveEditBtn.addEventListener("click", () => {
 
 cancelBtn.addEventListener("click", () => {
   document.getElementById("profileHeader").style.display = "block";
+  document.querySelector(".user_content").style.display = "block";
   document.getElementById("edit").style.display = "none";
 });
 

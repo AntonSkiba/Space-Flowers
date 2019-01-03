@@ -8,6 +8,7 @@ if (toggleOnEdit) {
       ? document.getElementById("userDesc").innerHTML
       : "";
     document.getElementById("profileHeader").style.display = "none";
+    document.querySelector(".user_content").style.display = "none";
     document.getElementById("edit").style.display = "block";
     document.getElementsByClassName(
       "dropImages"

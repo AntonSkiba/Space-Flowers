@@ -7,31 +7,31 @@ window.addEventListener("load", () => {
     }
   });
 
-  let updatePosts = setInterval(() => {
-    returnInfo().then(res => {
-      let posts = document.getElementById("posts");
-      for (let i = 0; i < res.users.length; i++) {
-        let post = document.getElementById(res.users[i].login);
-        if (post) {
-          let updDesc = post.querySelector(".userDesc").innerHTML
-            ? post.querySelector(".userDesc").innerHTML
-            : "";
-          if (updDesc != res.users[i].description) {
-            posts.removeChild(document.getElementById(res.users[i].login));
-            posts.insertBefore(
-              createPost(res.users[i].login, res.users[i].description),
-              posts.firstChild
-            );
-          }
-        } else {
-          posts.insertBefore(
-            createPost(res.users[i].login, res.users[i].description),
-            posts.firstChild
-          );
-        }
-      }
-    });
-  }, 3000);
+  // let updatePosts = setInterval(() => {
+  //   returnInfo().then(res => {
+  //     let posts = document.getElementById("posts");
+  //     for (let i = 0; i < res.users.length; i++) {
+  //       let post = document.getElementById(res.users[i].login);
+  //       if (post) {
+  //         let updDesc = post.querySelector(".userDesc").innerHTML
+  //           ? post.querySelector(".userDesc").innerHTML
+  //           : "";
+  //         if (updDesc != res.users[i].description) {
+  //           posts.removeChild(document.getElementById(res.users[i].login));
+  //           posts.insertBefore(
+  //             createPost(res.users[i].login, res.users[i].description),
+  //             posts.firstChild
+  //           );
+  //         }
+  //       } else {
+  //         posts.insertBefore(
+  //           createPost(res.users[i].login, res.users[i].description),
+  //           posts.firstChild
+  //         );
+  //       }
+  //     }
+  //   });
+  // }, 3000);
 });
 
 function createPost(login, description) {
