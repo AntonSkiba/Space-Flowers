@@ -25,6 +25,15 @@
       <div id="simPost" style="display: none"></div>
       <% } %>
       <div class="postsContainer"></div>
+      <div class="modal fade" id="post" tabindex="-1" role="dialog" aria-labelledby="post" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+          <div class="modal-content">
+            <div class="modal-body">
+              <% include ../templates/user/post.ejs %>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

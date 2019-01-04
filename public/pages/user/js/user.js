@@ -1,3 +1,8 @@
+let login = document
+  .getElementById("username")
+  .innerHTML.split(" ")
+  .join("");
+
 window.addEventListener("load", () => {
   let desc = document.getElementById("userDesc");
   if (desc) {
@@ -8,10 +13,6 @@ window.addEventListener("load", () => {
       .join(">");
     desc.style.display = "block";
   }
-  let login = document
-    .getElementById("username")
-    .innerHTML.split(" ")
-    .join("");
   let background = document.getElementById("userBackground");
   let photo = document.getElementById("userPhoto");
   loadHeader(login, background, "background");
@@ -58,8 +59,11 @@ let fetchNow = function(login, i, start, length, postsContainer) {
       let postElem = document.createElement("div");
       postElem.setAttribute("class", "postBlock animation");
       postElem.setAttribute("id", i);
+      postElem.setAttribute("data-toggle", "modal");
+      postElem.setAttribute("data-target", "#post");
       postElem.style.background = `url(${image}) center no-repeat`;
       postElem.style.backgroundSize = "cover";
+      postElem.addEventListener("click", openPost.bind(postElem, image));
       postsContainer.appendChild(postElem);
       containerResize();
       if (length < 12 + start) {
@@ -71,6 +75,35 @@ let fetchNow = function(login, i, start, length, postsContainer) {
       }
     });
 };
+
+function openPost(image) {
+  let post = document.getElementById("openedPost");
+  let postImage = post.querySelector(".postImage");
+  if (postImage) post.removeChild(postImage);
+
+  post.appendChild(resizeToPost(image));
+}
+
+function resizeToPost(image) {
+  let postImage = document.createElement("img");
+  postImage.style.display = "none";
+  postImage.setAttribute("class", "postImage");
+  postImage.src = image;
+
+  let imgWidth = postImage.naturalWidth;
+  let imgHeight = postImage.naturalHeight;
+
+  let valToResize = imgWidth > imgHeight ? "width" : "height";
+
+  // postImage.removeAttribute("width");
+  // postImage.removeAttribute("height");
+
+  // postImage[valToResize] = "600";
+
+  postImage.width = "500";
+  postImage.style.display = "block";
+  return postImage;
+}
 
 function loadPosts(login, i, start) {
   fetch(`/userPosts/${login}`, {
@@ -95,7 +128,7 @@ setInterval(() => {
   }
   if (trigger === true && !((parseInt(postsContainer.lastChild.id) + 1) % 12)) {
     loadPosts(
-      "SkibaAnton",
+      login,
       parseInt(postsContainer.lastChild.id) + 1,
       parseInt(postsContainer.lastChild.id) + 1
     );
@@ -137,23 +170,21 @@ function postImages(file) {
   reader.readAsDataURL(file);
   reader.onloadend = function() {
     let img = reader.result;
-    let loadPost = document.getElementById("loadPost");
-    loadPost.style.height = "300px";
-    loadPost.style.width = "500px";
-    loadPost.style.background = `url("${img}") center no-repeat`;
-    loadPost.style.backgroundSize = "cover";
-  };
-  console.log(file);
-  let formData = new FormData();
-  formData.append("post", file);
-  fetch("/plagiarismTest", {
-    method: "POST",
-    body: formData
-  })
-    .then(res => {
-      return res.text();
+
+    console.log(file);
+    let formData = new FormData();
+    formData.append("post", file);
+    fetch("/plagiarismTest", {
+      method: "POST",
+      body: formData
     })
-    .then(mess => {
-      console.log(mess);
-    });
+      .then(res => {
+        return res.text();
+      })
+      .then(mess => {
+        document.querySelector(".postsContainer").innerHTML = "";
+        loadPosts(login, 0, 0);
+        console.log(mess);
+      });
+  };
 }

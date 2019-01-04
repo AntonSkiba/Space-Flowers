@@ -270,8 +270,9 @@ app.get("/getPost/:login/:i", (req, res) => {
   let login = req.params.login;
   let i = req.params.i;
   users.findOne({ login: login }, (err, user) => {
-    fs.exists(__dirname + user.posts[i].url, exists => {
-      if (exists) res.sendFile(__dirname + user.posts[i].url);
+    let index = user.posts.length - i - 1;
+    fs.exists(__dirname + user.posts[index].url, exists => {
+      if (exists) res.sendFile(__dirname + user.posts[index].url);
       else res.send("none");
     });
   });
@@ -442,10 +443,12 @@ app.post("/plagiarismTest", (req, res) => {
                       $set: {
                         posts: posts
                       }
+                    },
+                    () => {
+                      console.log(message);
+                      res.send(message);
                     }
                   );
-                  console.log(message);
-                  res.send(message);
                 });
               });
             });

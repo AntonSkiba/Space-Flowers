@@ -30,9 +30,19 @@
   height: 190px;
 }
 
+.profile .user_content .postsContainer .postBlock:hover {
+  cursor: pointer;
+  filter: brightness(0.5);
+}
+
+.profile .user_content .modal-dialog {
+  min-width: 800px;
+  min-height: 600px !important;
+}
+
 .animation {
   opacity: 0;
-  transition: 1s;
+  transition: 0.25s ease-in-out;
   animation: show 1s 1;
   animation-fill-mode: forwards;
 }
