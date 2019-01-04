@@ -2,21 +2,24 @@
   <link rel="stylesheet" href="/public/pages/user/isUser/header.css" />
   <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
-  <div id="userBackground">
-    <% if(isUser) { %>
-    <span id="editBtn">
-      <img src="/public/pages/user/icons/edit.svg" alt="" width="50px" height="50px">
-    </span>
-    <% } %>
-  </div>
+  <div id="userBackground"> </div>
   <div id="userPhoto"></div>
   <div class="userDescription">
     <span class="name" id="username">
       <%= user.login %>
-    </span><br />
+    </span>
+    <% if(isUser) { %>
+    <span id="editBtn">
+      <img src="/public/pages/user/icons/edit.svg" alt="" width="35px" height="35px">
+    </span>
+    <% } %>
+    <br />
     <% if (user.description) { %>
     <span class="label">О себе</span><br />
     <pre class="descArea" id="userDesc" style="display: none;"><%= user.description %></pre>
+    <% } %>
+    <% if(isUser) { %>
+    <button type="button" class="btn btn-light" id="addNewPost" data-toggle="modal" data-target="#post">Новый пост</button>
     <% } %>
   </div>
 

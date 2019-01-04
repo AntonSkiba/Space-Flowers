@@ -1,2 +1,25 @@
+<link rel="stylesheet" href="/public/pages/user/post/post.css" />
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+
 <div class="post" id="openedPost">
+
+  <div id="justPost">
+    <div id="postImg"></div>
+  </div>
+
+  <% if(isUser) { %>
+  <div id="newPost">
+    <div id="newImage">
+      <div class="dropImages" id="newPostImage">
+        <input type="file" id="postImage" accept="image/jpeg,image/png" onchange="postImages(this.files[0])">
+        <span id="addIcon">+</span>
+        <span id="addText">Нажмите или перетащите изображение</span>
+      </div>
+      <div class="dropImages" id="loadedImg"></div>
+    </div>
+  </div>
+  <% } %>
+
 </div>
+
+<script src="/public/pages/user/post/post.js" charset="utf-8"></script>

@@ -20,6 +20,13 @@ window.addEventListener("load", () => {
   loadPosts(login, 0, 0);
 });
 
+document.getElementById("addNewPost").addEventListener("click", () => {
+  console.log("click");
+  document.getElementById("justPost").style.display = "none";
+  document.getElementById("newPost").style.display = "block";
+  document.getElementById("newPostImage").style.display = "block";
+  document.getElementById("loadedImg").style.display = "none";
+});
 function loadHeader(login, element, type) {
   fetch(`/userProfile/${login}/${type}`, {
     method: "GET"
@@ -77,11 +84,13 @@ let fetchNow = function(login, i, start, length, postsContainer) {
 };
 
 function openPost(image) {
-  let post = document.getElementById("openedPost");
-  let postImage = post.querySelector(".postImage");
-  if (postImage) post.removeChild(postImage);
+  let postImg = document.getElementById("postImg");
+  let img = postImg.querySelector(".postImage");
+  document.getElementById("justPost").style.display = "block";
+  document.getElementById("newPost").style.display = "none";
+  if (img) postImg.removeChild(img);
 
-  post.appendChild(resizeToPost(image));
+  postImg.appendChild(resizeToPost(image));
 }
 
 function resizeToPost(image) {
@@ -89,16 +98,6 @@ function resizeToPost(image) {
   postImage.style.display = "none";
   postImage.setAttribute("class", "postImage");
   postImage.src = image;
-
-  let imgWidth = postImage.naturalWidth;
-  let imgHeight = postImage.naturalHeight;
-
-  let valToResize = imgWidth > imgHeight ? "width" : "height";
-
-  // postImage.removeAttribute("width");
-  // postImage.removeAttribute("height");
-
-  // postImage[valToResize] = "600";
 
   postImage.width = "500";
   postImage.style.display = "block";
@@ -159,32 +158,8 @@ function containerResize() {
     let realHeight = Math.floor(qtyPosts / qtyBlocks + 0.999999) * 200;
     container.style.width = `${qtyBlocks * 200}px`;
     if (realHeight !== height) {
-      content.style.height = `${realHeight + 80}px`;
+      content.style.height = `${realHeight + 40}px`;
       container.style.height = `${realHeight}px`;
     }
   }
-}
-// temp loading post
-function postImages(file) {
-  let reader = new FileReader();
-  reader.readAsDataURL(file);
-  reader.onloadend = function() {
-    let img = reader.result;
-
-    console.log(file);
-    let formData = new FormData();
-    formData.append("post", file);
-    fetch("/plagiarismTest", {
-      method: "POST",
-      body: formData
-    })
-      .then(res => {
-        return res.text();
-      })
-      .then(mess => {
-        document.querySelector(".postsContainer").innerHTML = "";
-        loadPosts(login, 0, 0);
-        console.log(mess);
-      });
-  };
 }

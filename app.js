@@ -336,12 +336,16 @@ app.post("/updateUserProfile", (req, res) => {
               { login: profile.login },
               {
                 $set: updateObj
+              },
+              () => {
+                res.send(profile.login);
               }
             );
             console.log(`Пользователь ${profile.login} загрузил`);
             console.log(updateObj);
+          } else {
+            res.send(profile.login);
           }
-          res.send(profile.login);
         }
       });
     }

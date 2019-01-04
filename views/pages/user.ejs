@@ -19,11 +19,6 @@
       <% include ../templates/user/isUser.ejs %>
     </div>
     <div class="user_content">
-      <% if(isUser) { %>
-      <input type="file" id="postImage" accept="image/jpeg,image/png" onchange="postImages(this.files[0])">
-      <div id="loadPost"></div>
-      <div id="simPost" style="display: none"></div>
-      <% } %>
       <div class="postsContainer"></div>
       <div class="modal fade" id="post" tabindex="-1" role="dialog" aria-labelledby="post" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
