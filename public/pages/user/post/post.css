@@ -1,14 +1,64 @@
 #newPost {
   display: none;
+  height: 100%;
+}
+
+#openedPost {
+  height: 100%;
+}
+#newImage {
+  width: 500px;
+  float: left;
+}
+
+.info {
+  height: 100%;
+  width: 250px;
+  float: left;
+}
+.descriptionPost {
+  position: absolute;
+  top: 20px;
+  left: 530px;
+  z-index: 2;
+}
+
+.descriptionPost #userPhotoPost {
+  float: left;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+}
+
+.descriptionPost #userNamePost {
+  margin: 18px 10px;
+  float: left;
+  color: var(--header-color);
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.operationsPost {
+  position: absolute;
+  width: 250px;
+  left: 530px;
+  bottom: 5px;
+  height: 50px;
+}
+
+.operationsPost .btn {
+  margin-left: 0 !important;
+  margin-right: 10px !important;
+  width: 110px !important;
 }
 #newPostImage {
   min-height: 500px;
+  border: 2px solid #ccc;
+  width: 500px;
 }
 
 #newPostImage,
 #loadedImg {
-  width: 504px;
-  border: 2px solid #ccc;
   border-radius: 5px;
   background-color: white;
   background-size: cover;

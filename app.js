@@ -4,9 +4,7 @@ const bcrypt = require("bcrypt");
 const mongoClient = require("mongodb").MongoClient;
 const multer = require("multer");
 const path = require("path");
-const util = require("util");
 const fs = require("fs");
-const readFile = util.promisify(fs.readFile);
 const pHash = require("./pHash.js");
 const sharp = require("sharp");
 
@@ -237,26 +235,6 @@ app.get("/userProfile/:login/:type", (req, res) => {
   });
 });
 
-// app.get("/userPosts/:login", (req, res) => {
-//   let login = req.params.login;
-//   let files = [];
-//   users.findOne({ login: login }, (err, user) => {
-//     if (user.posts) {
-//       let files = user.posts.map(function(post) {
-//         return readFile(__dirname + post.url);
-//       });
-//       Promise.all(files)
-//         .then(fileNames => {
-//           console.log(fileNames);
-//           res.send(fileNames);
-//         })
-//         .catch(err => {
-//           console.log(err);
-//         });
-//     } else res.send([]);
-//   });
-// });
-
 app.get("/userPosts/:login", (req, res) => {
   let login = req.params.login;
   users.findOne({ login: login }, (err, user) => {
@@ -277,20 +255,6 @@ app.get("/getPost/:login/:i", (req, res) => {
     });
   });
 });
-
-// app.get("/userProfile/:login", (req, res) => {
-//   let login = req.params.login;
-//   let files = [];
-//   users.findOne({ login: login }, (err, user) => {
-//     files.push(readFile(__dirname + user.photo));
-//     files.push(readFile(__dirname + user.background));
-//
-//     Promise.all(files).then(fileNames => {
-//       console.log(fileNames);
-//       res.send(fileNames);
-//     });
-//   });
-// });
 
 // edit profile
 
@@ -406,7 +370,6 @@ app.post("/plagiarismTest", (req, res) => {
         if (err) {
           res.send("Произошел троллинг с загрузкой картинок :)))000))0");
         } else {
-          let posts = profile.posts ? profile.posts : [];
           let url = "/" + req.files.post[0].path.split("\\").join("/");
           sharp("." + url)
             .resize(128, 128, {
@@ -440,12 +403,11 @@ app.post("/plagiarismTest", (req, res) => {
                     pHash: pHash,
                     status: message
                   };
-                  posts.push(post);
                   users.updateOne(
                     { login: profile.login },
                     {
                       $set: {
-                        posts: posts
+                        tempPost: post
                       }
                     },
                     () => {
@@ -462,7 +424,64 @@ app.post("/plagiarismTest", (req, res) => {
   });
 });
 
+app.get("/cancelNewPost", (req, res) => {
+  let cookies = parseCookies(req);
+  users.findOne({ authorization: cookies.auth }, (err, profile) => {
+    if (err || profile === null) {
+      res.send("Произошел троллинг :)))000))0");
+    } else {
+      if (profile.tempPost) {
+        deleteImage(profile.tempPost.url.slice(1));
+
+        users.updateOne(
+          { login: profile.login },
+          {
+            $set: {
+              tempPost: ""
+            }
+          },
+          () => {
+            res.send(profile.tempPost.url);
+          }
+        );
+      } else res.send("none");
+    }
+  });
+});
+
+app.get("/saveNewPost", (req, res) => {
+  let cookies = parseCookies(req);
+  users.findOne({ authorization: cookies.auth }, (err, profile) => {
+    if (err || profile === null) {
+      res.send("Произошел троллинг :)))000))0");
+    } else {
+      let posts = profile.posts ? profile.posts : [];
+      if (profile.tempPost) {
+        posts.push(profile.tempPost);
+        users.updateOne(
+          { login: profile.login },
+          {
+            $set: {
+              posts: posts,
+              tempPost: ""
+            }
+          },
+          err => {
+            if (err) res.send("Не сохранилось");
+            else res.send("Пост: " + profile.tempPost.url + " сохранён.");
+          }
+        );
+      } else res.send("Не сохранилось");
+    }
+  });
+});
 // other
+
+function deleteImage(path) {
+  fs.open(path, "w+", (err, fd) => {
+    fs.close(fd, err => {});
+  });
+}
 
 function hammingDistance(hash) {
   return new Promise(function(resolve, reject) {

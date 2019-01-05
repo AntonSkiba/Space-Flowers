@@ -3,6 +3,8 @@ let login = document
   .innerHTML.split(" ")
   .join("");
 
+let userPhotoUrl;
+
 window.addEventListener("load", () => {
   let desc = document.getElementById("userDesc");
   if (desc) {
@@ -20,13 +22,22 @@ window.addEventListener("load", () => {
   loadPosts(login, 0, 0);
 });
 
-document.getElementById("addNewPost").addEventListener("click", () => {
-  console.log("click");
-  document.getElementById("justPost").style.display = "none";
-  document.getElementById("newPost").style.display = "block";
-  document.getElementById("newPostImage").style.display = "block";
-  document.getElementById("loadedImg").style.display = "none";
-});
+let addNewPost = document.getElementById("addNewPost");
+if (addNewPost) {
+  addNewPost.addEventListener("click", () => {
+    console.log("click");
+    document.getElementById("justPost").style.display = "none";
+    let newPost = document.getElementById("newPost");
+    newPost.style.display = "block";
+    document.getElementById("newPostImage").style.border = "2px solid #ccc";
+    document.getElementById(
+      "userPhotoPost"
+    ).style.background = `url(${userPhotoUrl}) center no-repeat`;
+    document.getElementById("userPhotoPost").style.backgroundSize = "cover";
+    document.getElementById("userNamePost").innerHTML = login;
+  });
+}
+
 function loadHeader(login, element, type) {
   fetch(`/userProfile/${login}/${type}`, {
     method: "GET"
@@ -45,16 +56,18 @@ function loadHeader(login, element, type) {
           height: 500
         });
         let image = randomImage.png();
+        if (type == "photo") userPhotoUrl = image;
         element.style.background = `url(${image}) center no-repeat`;
         element.style.backgroundSize = "cover";
       } else {
         let image = URL.createObjectURL(backImg);
+        if (type == "photo") userPhotoUrl = image;
         element.style.background = `url(${image}) center no-repeat`;
         element.style.backgroundSize = "cover";
       }
     });
 }
-let fetchNow = function(login, i, start, length, postsContainer) {
+function fetchNow(login, i, start, length, postsContainer) {
   fetch(`/getPost/${login}/${i}`, {
     method: "GET"
   })
@@ -81,14 +94,21 @@ let fetchNow = function(login, i, start, length, postsContainer) {
           fetchNow(login, i + 1, start, length, postsContainer);
       }
     });
-};
+}
 
 function openPost(image) {
   let postImg = document.getElementById("postImg");
   let img = postImg.querySelector(".postImage");
   document.getElementById("justPost").style.display = "block";
-  document.getElementById("newPost").style.display = "none";
+  if (document.getElementById("newPost"))
+    document.getElementById("newPost").style.display = "none";
   if (img) postImg.removeChild(img);
+
+  document.getElementById(
+    "userPhotoPost"
+  ).style.background = `url(${userPhotoUrl}) center no-repeat`;
+  document.getElementById("userPhotoPost").style.backgroundSize = "cover";
+  document.getElementById("userNamePost").innerHTML = login;
 
   postImg.appendChild(resizeToPost(image));
 }

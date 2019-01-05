@@ -1,39 +1,43 @@
 let newPostImage = document.getElementById("newPostImage");
 
-newPostImage.addEventListener("click", () => {
-  let click = new MouseEvent("click");
-  document.getElementById("postImage").dispatchEvent(click);
-});
+if (newPostImage) {
+  newPostImage.addEventListener("click", () => {
+    let click = new MouseEvent("click");
+    document.getElementById("postImage").dispatchEvent(click);
+  });
+  ["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+    newPostImage.addEventListener(eventName, preventDefaults, false);
+    document.body.addEventListener(eventName, preventDefaults, false);
+  });
+  ["dragenter", "dragover", "mouseenter"].forEach(eventName => {
+    newPostImage.addEventListener(
+      eventName,
+      highlight.bind(newPostImage),
+      false
+    );
+  });
+  ["dragleave", "drop", "mouseleave"].forEach(eventName => {
+    newPostImage.addEventListener(
+      eventName,
+      unhighlight.bind(newPostImage),
+      false
+    );
+  });
 
-["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
-  newPostImage.addEventListener(eventName, preventDefaults, false);
-  document.body.addEventListener(eventName, preventDefaults, false);
-});
+  function highlight(e) {
+    this.classList.add("highlight");
+  }
+  function unhighlight(e) {
+    this.classList.remove("highlight");
+  }
+
+  newPostImage.addEventListener("drop", dropImage, false);
+}
 
 function preventDefaults(e) {
   e.preventDefault();
   e.stopPropagation();
 }
-
-["dragenter", "dragover", "mouseenter"].forEach(eventName => {
-  newPostImage.addEventListener(eventName, highlight.bind(newPostImage), false);
-});
-["dragleave", "drop", "mouseleave"].forEach(eventName => {
-  newPostImage.addEventListener(
-    eventName,
-    unhighlight.bind(newPostImage),
-    false
-  );
-});
-
-function highlight(e) {
-  this.classList.add("highlight");
-}
-function unhighlight(e) {
-  this.classList.remove("highlight");
-}
-
-newPostImage.addEventListener("drop", dropImage, false);
 
 function dropImage(e) {
   let dt = e.dataTransfer;
@@ -71,4 +75,52 @@ function postImages(file) {
         });
     };
   }
+}
+
+let cancelButton = document.getElementById("cancelPost");
+
+if (cancelButton) {
+  cancelButton.addEventListener("click", () => {
+    document.getElementById("newPostImage").style.display = "block";
+    document.getElementById("loadedImg").style.display = "none";
+    fetch("/cancelNewPost", {
+      method: "GET"
+    })
+      .then(response => {
+        return response.text();
+      })
+      .then(message => {
+        console.log(message);
+      });
+  });
+}
+
+let savePost = document.getElementById("savePost");
+
+if (savePost) {
+  savePost.addEventListener("click", () => {
+    let postReady =
+      document.getElementById("loadedImg").style.display == "block"
+        ? true
+        : false;
+    if (postReady) {
+      document.getElementById("newPostImage").style.display = "block";
+      document.getElementById("loadedImg").style.display = "none";
+      fetch("/saveNewPost", {
+        method: "GET"
+      })
+        .then(response => {
+          return response.text();
+        })
+        .then(message => {
+          document.querySelector(".postsContainer").innerHTML = "";
+          loadPosts(login, 0, 0);
+          let loadedImgSrc = document.querySelector("#loadedImg .postImage")
+            .src;
+          openPost(loadedImgSrc);
+        });
+    } else {
+      document.getElementById("newPostImage").style.border = "2px solid red";
+    }
+  });
 }

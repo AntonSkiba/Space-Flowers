@@ -21,6 +21,10 @@
   color: var(--active-color);
 }
 
+#addNewPost {
+  float: right;
+}
+
 #userPhoto {
   position: absolute;
   top: 75px;
@@ -48,6 +52,7 @@
   font-family: "Roboto", sans-serif;
   font-size: 16px;
   border-radius: 5px;
+  min-height: 80px;
 }
 
 .userDescription .label {
