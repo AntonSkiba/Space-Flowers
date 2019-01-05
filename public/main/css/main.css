@@ -1,11 +1,29 @@
-:root {
-}
 body {
   --main-color: #060e24;
   --active-color: #d4affe;
   --header-color: #0e225d;
   --some-color: #83acec;
   background-color: var(--main-color) !important;
+}
+
+body::-webkit-scrollbar {
+  width: 16px;
+}
+
+body::-webkit-scrollbar-thumb {
+  background-color: #472047;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background-color: #864b87;
+}
+
+body::-webkit-scrollbar-track {
+  background-image: -webkit-linear-gradient(
+    270deg,
+    var(--header-color) 71px,
+    transparent 71px
+  );
 }
 
 .header {
@@ -61,6 +79,12 @@ body {
 .header .profile_menu .divider {
   height: 1px;
   background-color: var(--active-color);
+}
+
+.blueDivider {
+  height: 1px;
+  background: radial-gradient(70% 50%, #bbc3df, white);
+  margin-bottom: 10px;
 }
 
 .error_page {

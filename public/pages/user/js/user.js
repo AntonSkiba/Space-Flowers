@@ -98,10 +98,17 @@ function fetchNow(login, i, start, length, postsContainer) {
 
 function openPost(image) {
   let postImg = document.getElementById("postImg");
+  let postId = this.id ? this.id : 0;
+  postImg.setAttribute("postid", postId);
   let img = postImg.querySelector(".postImage");
   document.getElementById("justPost").style.display = "block";
   if (document.getElementById("newPost"))
     document.getElementById("newPost").style.display = "none";
+  if (document.getElementById("deletePost")) {
+    document.getElementById("areYouSure").style.display = "none";
+    document.getElementById("deletePost").style.display = "block";
+  }
+
   if (img) postImg.removeChild(img);
 
   document.getElementById(

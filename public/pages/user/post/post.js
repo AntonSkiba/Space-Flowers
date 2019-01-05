@@ -124,3 +124,40 @@ if (savePost) {
     }
   });
 }
+
+let deletePost = document.getElementById("deletePost");
+
+if (deletePost) {
+  deletePost.addEventListener("click", () => {
+    deletePost.style.display = "none";
+    document.getElementById("areYouSure").style.display = "block";
+  });
+}
+
+let sureNo = document.getElementById("sureNo");
+let sureYes = document.getElementById("sureYes");
+
+if (sureYes) {
+  sureNo.addEventListener("click", () => {
+    document.getElementById("areYouSure").style.display = "none";
+    document.getElementById("deletePost").style.display = "block";
+  });
+
+  sureYes.addEventListener("click", () => {
+    let postId = document.getElementById("postImg").getAttribute("postid");
+    containerResize();
+    fetch(`/deletePost/${postId}`, {
+      method: "GET"
+    })
+      .then(response => {
+        return response.text();
+      })
+      .then(message => {
+        console.log(message);
+        document.querySelector(".postsContainer").innerHTML = "";
+        loadPosts(login, 0, 0);
+        document.getElementById("areYouSure").style.display = "none";
+        document.getElementById("deletePost").style.display = "block";
+      });
+  });
+}

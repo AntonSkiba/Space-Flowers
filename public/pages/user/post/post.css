@@ -17,10 +17,15 @@
   float: left;
 }
 .descriptionPost {
+  width: 250px;
   position: absolute;
-  top: 20px;
-  left: 530px;
+  top: 5px;
+  left: 540px;
   z-index: 2;
+}
+
+.descriptionPost .userInfo {
+  margin-top: 15px;
 }
 
 .descriptionPost #userPhotoPost {
@@ -37,24 +42,65 @@
   font-size: 20px;
   font-weight: bold;
 }
-
+.descriptionPost .blueDivider {
+  width: 235px;
+  margin-top: 100px;
+}
 .operationsPost {
   position: absolute;
-  width: 250px;
-  left: 530px;
-  bottom: 5px;
-  height: 50px;
+  width: 235px;
+  left: 540px;
+  bottom: 15px;
+  height: auto;
 }
 
 .operationsPost .btn {
   margin-left: 0 !important;
-  margin-right: 10px !important;
   width: 110px !important;
 }
+
+#areYouSure {
+  transition: 0.2s ease-in-out;
+  display: none;
+}
+#areYouSure .label {
+  width: 235px;
+  height: 100px;
+  color: #a30404;
+  font-size: 14px;
+}
+
+#areYouSure #sureYes {
+  margin-right: 10px;
+}
+
+#cancelPost {
+  margin-right: 10px;
+}
+
+#deletePost {
+  transition: 0.2s ease-in-out;
+  float: right;
+}
+
 #newPostImage {
   min-height: 500px;
   border: 2px solid #ccc;
   width: 500px;
+}
+
+.descriptionPost .close {
+  margin-top: -10px;
+  margin-right: 5px;
+  filter: saturate(250%);
+  float: right;
+  transition: 0.2s ease-in-out;
+}
+
+.descriptionPost .close:hover {
+  background-color: white;
+  filter: saturate(500%);
+  cursor: pointer;
 }
 
 #newPostImage,

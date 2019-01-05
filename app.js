@@ -475,6 +475,34 @@ app.get("/saveNewPost", (req, res) => {
     }
   });
 });
+
+app.get("/deletePost/:postId", (req, res) => {
+  let cookies = parseCookies(req);
+  let postId = req.params.postId;
+  users.findOne({ authorization: cookies.auth }, (err, profile) => {
+    if (err || profile === null) {
+      res.send("Произошел троллинг :)))000))0");
+    } else {
+      let posts = profile.posts;
+      let index = posts.length - postId - 1;
+      posts.splice(index, 1);
+      users.updateOne(
+        { login: profile.login },
+        {
+          $set: {
+            posts: posts,
+            tempPost: ""
+          }
+        },
+        err => {
+          if (err) res.send("Не удалилось");
+          else res.send("Пост удалён.");
+        }
+      );
+    }
+  });
+});
+
 // other
 
 function deleteImage(path) {
