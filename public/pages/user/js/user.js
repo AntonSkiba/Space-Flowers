@@ -34,6 +34,9 @@ if (addNewPost) {
     document.getElementById("likes").style.height = "1px";
     console.log("click");
     document.getElementById("justPost").style.display = "none";
+    document.getElementById("hiddenComments").style.display = "none";
+    document.getElementById("postDate").style.display = "none";
+    document.getElementById("offsetDivider").style.marginTop = "70px";
     let newPost = document.getElementById("newPost");
     newPost.style.display = "block";
     document.getElementById("newPostImage").style.border = "2px solid #ccc";
@@ -109,6 +112,9 @@ function openPost(image) {
   postImg.setAttribute("postid", postId);
   let img = postImg.querySelector(".postImage");
   document.getElementById("justPost").style.display = "block";
+  document.getElementById("hiddenComments").style.display = "block";
+  document.getElementById("postDate").style.display = "block";
+  document.getElementById("offsetDivider").style.marginTop = "0px";
   if (document.getElementById("newPost"))
     document.getElementById("newPost").style.display = "none";
   if (document.getElementById("deletePost")) {
@@ -125,11 +131,30 @@ function openPost(image) {
   ).style.background = `url(${userPhotoUrl}) center no-repeat`;
   document.getElementById("userPhotoPost").style.backgroundSize = "cover";
   document.getElementById("userNamePost").innerHTML = login;
-
   postImg.appendChild(resizeToPost(image));
 
+  let getheight = setInterval(() => {
+    if (postImg.offsetHeight > 0) {
+      let imgHeight;
+      if (postImg.offsetHeight < 500) {
+        let margImg = (500 - postImg.offsetHeight) / 2;
+        imgHeight = 500 + margImg;
+        document.getElementById("postImg").style.marginTop = `${margImg}px`;
+      } else {
+        document.getElementById("postImg").style.marginTop = "0";
+        imgHeight = postImg.offsetHeight;
+      }
+
+      let comments = document.getElementById("comments");
+      let delBtn = document.getElementById("deletePost");
+      let offset = delBtn ? 220 : 180;
+      comments.style.height = `${imgHeight - offset}px`;
+      console.log(imgHeight);
+      clearInterval(getheight);
+    }
+  }, 60);
+
   if (isUserLogin.split(/[A-Za-z]/g).length == 1) isUserLogin = "guest";
-  console.log(isUserLogin);
   fetch(`/postContent/${login}/${postId}/${isUserLogin}`, {
     method: "GET"
   })
@@ -138,6 +163,8 @@ function openPost(image) {
     })
     .then(postContent => {
       let likesNum = document.getElementById("likesNum");
+      let date = document.getElementById("date");
+      date.innerHTML = postContent.date;
       likesNum.innerHTML = postContent.likes.length;
       if (!postContent.userLikes) {
         likeToggler(true);

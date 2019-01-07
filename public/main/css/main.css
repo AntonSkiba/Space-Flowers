@@ -85,7 +85,7 @@ body::-webkit-scrollbar-track {
 .blueDivider {
   height: 1px;
   background: radial-gradient(70% 50%, #bbc3df, white);
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .error_page {

@@ -643,16 +643,30 @@ app.get("/postContent/:login/:i/:userLogin", (req, res) => {
         user: "none"
       });
     } else {
+      let date = getDate(parseInt(user.posts[index].url.split("-")[1]));
       res.send({
         likes: user.posts[index].likes ? user.posts[index].likes : [],
         comments: user.posts[index].comments ? user.posts[index].comments : [],
         userLikes: user.posts[index].likes
           ? user.posts[index].likes.includes(userLogin)
-          : false
+          : false,
+        date: date
       });
     }
   });
 });
+
+function getDate(ms) {
+  let unchangeTime = new Date(ms).toLocaleString();
+  unchangeTime = unchangeTime.split(":")[0] + ":" + unchangeTime.split(":")[1];
+  let formYear = unchangeTime.split(" ")[0];
+  formYear = formYear.split("-");
+  let monts = parseInt(formYear[1]) > 9 ? formYear[1] : "0" + formYear[1];
+  let day = parseInt(formYear[2]) > 9 ? formYear[2] : "0" + formYear[2];
+  unchangeTime =
+    day + "." + monts + "." + formYear[0] + " " + unchangeTime.split(" ")[1];
+  return unchangeTime;
+}
 
 app.get("/like/:userSetLike/:userGetLike/:postId", (req, res) => {
   let userSetLike = req.params.userSetLike;
