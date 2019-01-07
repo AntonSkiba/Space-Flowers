@@ -213,7 +213,10 @@ app.get("/user/:login", (req, res, next) => {
         res.render("pages/user", {
           header: isAnotherUser,
           user: result,
-          isUser: false
+          isUser: false,
+          subscribe: myProfile.subscribes
+            ? myProfile.subscribes.includes(result.login)
+            : false
         });
       });
     }
@@ -253,6 +256,132 @@ app.get("/getPost/:login/:i", (req, res) => {
       if (exists) res.sendFile(__dirname + user.posts[index].url);
       else res.send("none");
     });
+  });
+});
+
+app.get("/subscribe/:login", (req, res) => {
+  let cookies = parseCookies(req);
+  users.findOne({ authorization: cookies.auth }, (err, user) => {
+    if (err || user === null) {
+      res.send("Произошел троллинг :)))000))0");
+    } else {
+      let userLogin = user.login;
+      let subscribeLogin = req.params.login;
+
+      users.findOne({ login: subscribeLogin }, (err, subsUser) => {
+        if (err || subsUser === null) {
+          res.send("Пользователь был удален :(");
+        } else {
+          let subscribersOfsubsUser = subsUser.subscribers
+            ? subsUser.subscribers
+            : [];
+          subscribersOfsubsUser.push(user.login);
+          users.updateOne(
+            { login: subsUser.login },
+            {
+              $set: {
+                subscribers: subscribersOfsubsUser
+              }
+            },
+            () => {
+              let subscribesOfUser = user.subscribes ? user.subscribes : [];
+              subscribesOfUser.push(subsUser.login);
+              users.updateOne(
+                { login: user.login },
+                {
+                  $set: {
+                    subscribes: subscribesOfUser
+                  }
+                },
+                () => {
+                  console.log(
+                    "Пользователь " +
+                      user.login +
+                      " успешно подписался на " +
+                      subsUser.login
+                  );
+                  res.send(
+                    "Пользователь " +
+                      user.login +
+                      " успешно подписался на " +
+                      subsUser.login
+                  );
+                }
+              );
+            }
+          );
+        }
+      });
+    }
+  });
+});
+
+//get subs
+
+app.get("/getSubs/:type/:login", (req, res) => {
+  let login = req.params.login;
+  let type = req.params.type;
+  users.findOne({ login: login }, (err, user) => {
+    let subrs = user[type] ? user[type] : [];
+
+    res.send(subrs);
+  });
+});
+
+app.get("/unsubscribe/:login", (req, res) => {
+  let cookies = parseCookies(req);
+  users.findOne({ authorization: cookies.auth }, (err, user) => {
+    if (err || user === null) {
+      res.send("Произошел троллинг :)))000))0");
+    } else {
+      let userLogin = user.login;
+      let unsubscribeLogin = req.params.login;
+
+      users.findOne({ login: unsubscribeLogin }, (err, unsubsUser) => {
+        if (err || unsubsUser === null) {
+          res.send("Пользователь был удален :(");
+        } else {
+          let subscribersOfunsubsUser = unsubsUser.subscribers;
+          let index = subscribersOfunsubsUser.indexOf(user.login);
+          if (index != -1) subscribersOfunsubsUser.splice(index, 1);
+          users.updateOne(
+            { login: unsubsUser.login },
+            {
+              $set: {
+                subscribers: subscribersOfunsubsUser
+              }
+            },
+            () => {
+              let subscribesOfUser = user.subscribes;
+              let indexUnsub = subscribesOfUser.indexOf(unsubsUser.login);
+              if (indexUnsub != -1) subscribesOfUser.splice(indexUnsub, 1);
+              users.updateOne(
+                { login: user.login },
+                {
+                  $set: {
+                    subscribes: subscribesOfUser
+                  }
+                },
+                () => {
+                  console.log(
+                    "Пользователь " +
+                      user.login +
+                      " успешно отписался от " +
+                      unsubsUser.login
+                  );
+                  res.send(
+                    "Пользователь " +
+                      user.login +
+                      " успешно отписался от " +
+                      unsubsUser.login
+                  );
+                }
+              );
+            }
+          );
+        }
+      });
+    }
   });
 });
 
@@ -499,6 +628,121 @@ app.get("/deletePost/:postId", (req, res) => {
           else res.send("Пост удалён.");
         }
       );
+    }
+  });
+});
+
+app.get("/postContent/:login/:i/:userLogin", (req, res) => {
+  let login = req.params.login;
+  let i = req.params.i;
+  let userLogin = req.params.userLogin;
+  users.findOne({ login: login }, (err, user) => {
+    let index = user.posts.length - i - 1;
+    if (err || user === null) {
+      res.send({
+        user: "none"
+      });
+    } else {
+      res.send({
+        likes: user.posts[index].likes ? user.posts[index].likes : [],
+        comments: user.posts[index].comments ? user.posts[index].comments : [],
+        userLikes: user.posts[index].likes
+          ? user.posts[index].likes.includes(userLogin)
+          : false
+      });
+    }
+  });
+});
+
+app.get("/like/:userSetLike/:userGetLike/:postId", (req, res) => {
+  let userSetLike = req.params.userSetLike;
+  let userGetLike = req.params.userGetLike;
+  let postId = req.params.postId;
+  users.findOne({ login: userGetLike }, (err, profile) => {
+    if (err || profile === null) {
+      res.send("Пользователь был удалён.");
+    } else {
+      if (profile.posts) {
+        if (profile.posts.length) {
+          let index = profile.posts.length - postId - 1;
+          let posts = profile.posts;
+          let post = posts[index];
+          let postLikes = post.likes ? post.likes : [];
+          let isUserLike = postLikes.includes(userSetLike);
+          if (!isUserLike) {
+            postLikes.push(userSetLike);
+            posts[index].likes = postLikes;
+            users.updateOne(
+              { login: profile.login },
+              {
+                $set: {
+                  posts: posts
+                }
+              },
+              err => {
+                if (err) res.send("Не лайкнулось");
+                else
+                  res.send(
+                    `${userSetLike} лайкнул пост № ${postId} пользователя ${userGetLike}`
+                  );
+              }
+            );
+          } else {
+            res.send("Вы уже поставили лайк.");
+          }
+        } else {
+          res.send("У пользователя нет постов.");
+        }
+      } else {
+        res.send("У пользователя еще не было постов.");
+      }
+    }
+  });
+});
+
+app.get("/unlike/:userSetLike/:userGetLike/:postId", (req, res) => {
+  let userSetLike = req.params.userSetLike;
+  let userGetLike = req.params.userGetLike;
+  let postId = req.params.postId;
+  users.findOne({ login: userGetLike }, (err, profile) => {
+    if (err || profile === null) {
+      res.send("Пользователь был удалён.");
+    } else {
+      if (profile.posts) {
+        if (profile.posts.length) {
+          let index = profile.posts.length - postId - 1;
+          let posts = profile.posts;
+          let post = posts[index];
+          let postLikes = post.likes;
+          let isUserLike = postLikes.includes(userSetLike);
+          if (isUserLike) {
+            let likeIndex = postLikes.indexOf(userSetLike);
+            postLikes.splice(likeIndex, 1);
+            posts[index].likes = postLikes;
+            users.updateOne(
+              { login: profile.login },
+              {
+                $set: {
+                  posts: posts
+                }
+              },
+              err => {
+                if (err) res.send("Не лайкнулось");
+                else
+                  res.send(
+                    `${userSetLike} снял лайк с поста № ${postId} пользователя ${userGetLike}`
+                  );
+              }
+            );
+          } else {
+            res.send("Вы уже отменили лайк.");
+          }
+        } else {
+          res.send("У пользователя нет постов.");
+        }
+      } else {
+        res.send("У пользователя еще не было постов.");
+      }
     }
   });
 });

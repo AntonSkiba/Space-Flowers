@@ -3,6 +3,11 @@ let login = document
   .innerHTML.split(" ")
   .join("");
 
+let isUserLogin = document
+  .getElementById("navbarDropdown")
+  .innerHTML.split(" ")
+  .join("");
+
 let userPhotoUrl;
 
 window.addEventListener("load", () => {
@@ -25,6 +30,8 @@ window.addEventListener("load", () => {
 let addNewPost = document.getElementById("addNewPost");
 if (addNewPost) {
   addNewPost.addEventListener("click", () => {
+    document.getElementById("likes").style.visibility = "hidden";
+    document.getElementById("likes").style.height = "1px";
     console.log("click");
     document.getElementById("justPost").style.display = "none";
     let newPost = document.getElementById("newPost");
@@ -108,6 +115,8 @@ function openPost(image) {
     document.getElementById("areYouSure").style.display = "none";
     document.getElementById("deletePost").style.display = "block";
   }
+  document.getElementById("likes").style.visibility = "visible";
+  document.getElementById("likes").style.height = "40px";
 
   if (img) postImg.removeChild(img);
 
@@ -118,6 +127,86 @@ function openPost(image) {
   document.getElementById("userNamePost").innerHTML = login;
 
   postImg.appendChild(resizeToPost(image));
+
+  if (isUserLogin.split(/[A-Za-z]/g).length == 1) isUserLogin = "guest";
+  console.log(isUserLogin);
+  fetch(`/postContent/${login}/${postId}/${isUserLogin}`, {
+    method: "GET"
+  })
+    .then(response => {
+      return response.json();
+    })
+    .then(postContent => {
+      let likesNum = document.getElementById("likesNum");
+      likesNum.innerHTML = postContent.likes.length;
+      if (!postContent.userLikes) {
+        likeToggler(true);
+      } else {
+        likeToggler(false);
+      }
+    });
+}
+
+let likeBtn = document.getElementById("like");
+let unlikeBtn = document.getElementById("unlike");
+
+likeBtn.addEventListener("click", () => {
+  let postId = document.getElementById("postImg").getAttribute("postid");
+  setLike(postId);
+});
+
+unlikeBtn.addEventListener("click", () => {
+  let postId = document.getElementById("postImg").getAttribute("postid");
+  setUnlike(postId);
+});
+
+function likeToggler(type) {
+  if (type) {
+    likeBtn.style.display = "block";
+    unlikeBtn.style.display = "none";
+  } else {
+    likeBtn.style.display = "none";
+    unlikeBtn.style.display = "block";
+  }
+}
+
+function setLike(postId) {
+  console.log(isUserLogin + " лайкнул " + postId);
+  if (isUserLogin != "guest") {
+    likeToggler(false);
+    let numCont = document.getElementById("likesNum");
+    let likesNum = parseInt(numCont.innerHTML);
+    numCont.innerHTML = likesNum + 1;
+    console.log(likesNum);
+    fetch(`/like/${isUserLogin}/${login}/${postId}`, {
+      method: "GET"
+    })
+      .then(response => response.text())
+      .then(message => {
+        console.log(message);
+      });
+  } else {
+    console.log("Войдите или зарегистрируйтесь, чтобы поставить лайк");
+  }
+}
+
+function setUnlike(postId) {
+  console.log(isUserLogin + " снял лайк с " + postId);
+  if (isUserLogin != "guest") {
+    likeToggler(true);
+    let numCont = document.getElementById("likesNum");
+    let likesNum = parseInt(numCont.innerHTML);
+    numCont.innerHTML = likesNum - 1;
+    fetch(`/unlike/${isUserLogin}/${login}/${postId}`, {
+      method: "GET"
+    })
+      .then(response => response.text())
+      .then(message => {
+        console.log(message);
+      });
+  } else {
+    console.log("Войдите или зарегистрируйтесь, чтобы снять лайк???");
+  }
 }
 
 function resizeToPost(image) {

@@ -9,19 +9,72 @@
       <%= user.login %>
     </span>
     <% if(isUser) { %>
+    <button type="button" class="btn" id="addNewPost" data-toggle="modal" data-target="#post">Новый пост</button>
+    <% } else if (header.myLogin && !subscribe){ %>
+    <button type="button" class="btn" id="subscribeBtn">
+      Подписаться
+      <span class="plusIcon"> +</span>
+    </button>
+    <button type="button" class="btn" id="unsubscribeBtn" style="display: none;">
+      Отписаться
+      <span class="plusIcon"> -</span>
+    </button>
+    <% } else if (header.myLogin && subscribe) { %>
+    <button type="button" class="btn" id="unsubscribeBtn">
+      Отписаться
+      <span class="plusIcon"> -</span>
+    </button>
+    <button type="button" class="btn" id="subscribeBtn" style="display: none;">
+      Подписаться
+      <span class="plusIcon"> +</span>
+    </button>
+    <% }%>
+    <% if(isUser) { %>
     <span id="editBtn">
       <img src="/public/pages/user/icons/edit.svg" alt="" width="35px" height="35px">
     </span>
     <% } %>
     <br />
-    <% if (user.description) { %>
-    <span class="label">О себе</span><br />
-    <pre class="descArea" id="userDesc" style="display: none;"><%= user.description %></pre>
-    <% } %>
+    <div class="desc">
+      <% if (user.description) { %>
+      <span class="label">О себе</span><br />
+      <pre class="descArea" id="userDesc" style="display: none;"><%= user.description %></pre>
+      <% } %>
+    </div>
     <div class="blueDivider"></div>
-    <% if(isUser) { %>
-    <button type="button" class="btn btn-light" id="addNewPost" data-toggle="modal" data-target="#post">Новый пост</button>
-    <% } %>
+
+    <div class="subs">
+      <span class="label">Публикаций: </span>
+      <span id="postsCount" class="subsCount">
+        <%= user.posts ? user.posts.length : 0 %>
+      </span>
+    </div>
+
+    <div class="subs openSubs" id="subscribersContainer" data-toggle="modal" data-target="#subsConteiner">
+      <span class="label">Подписчиков: </span>
+      <span id="subscribers" class="subsCount">
+        <%= user.subscribers ? user.subscribers.length : 0 %>
+      </span>
+    </div>
+
+    <div class="subs openSubs lastSubs" id="subscribesContainer" data-toggle="modal" data-target="#subsConteiner">
+      <span class="label">Подписок: </span>
+      <span id="subscribes" class="subsCount">
+        <%= user.subscribes ? user.subscribes.length : 0 %>
+      </span>
+    </div>
+
+    <div class="modal fade" id="subsConteiner" tabindex="-1" role="dialog" aria-labelledby="subsConteiner" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <span class="modal-title" id="subsTitle"></span>
+          <div class="modal-body">
+            <div id="usersContainer"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script src="/public/pages/user/isUser/header.js" charset="utf-8"></script>

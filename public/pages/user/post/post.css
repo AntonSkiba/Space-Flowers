@@ -35,7 +35,40 @@
   border-radius: 50%;
 }
 
+#likes {
+  height: 40px;
+  margin-left: 23px;
+  width: 200px;
+  margin-top: 90px;
+}
+
+#likesCount {
+  float: left;
+  margin-left: 10px;
+}
+
+#likesCount .label {
+  color: #7a8695;
+}
+
+#likesNum {
+  color: var(--header-color);
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+.likeIcons {
+  transition: 0.2s ease-in-out;
+  float: left;
+}
+
+.likeIcons:hover {
+  filter: saturate(300%);
+  cursor: pointer;
+}
+
 .descriptionPost #userNamePost {
+  width: 100px;
   margin: 18px 10px;
   float: left;
   color: var(--header-color);
@@ -44,7 +77,6 @@
 }
 .descriptionPost .blueDivider {
   width: 235px;
-  margin-top: 100px;
 }
 .operationsPost {
   position: absolute;
@@ -80,7 +112,8 @@
 
 #deletePost {
   transition: 0.2s ease-in-out;
-  float: right;
+  margin: 0 40px;
+  width: 235px !important;
 }
 
 #newPostImage {

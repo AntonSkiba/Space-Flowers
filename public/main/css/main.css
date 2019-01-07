@@ -8,6 +8,7 @@ body {
 
 body::-webkit-scrollbar {
   width: 16px;
+  transition: all 1s ease-in-out;
 }
 
 body::-webkit-scrollbar-thumb {

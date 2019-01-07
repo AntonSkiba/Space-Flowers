@@ -118,6 +118,9 @@ if (savePost) {
           let loadedImgSrc = document.querySelector("#loadedImg .postImage")
             .src;
           openPost(loadedImgSrc);
+          let postsCount = document.getElementById("postsCount");
+          let postsCountNum = parseInt(postsCount.innerHTML);
+          postsCount.innerHTML = postsCountNum + 1;
         });
     } else {
       document.getElementById("newPostImage").style.border = "2px solid red";
@@ -145,7 +148,6 @@ if (sureYes) {
 
   sureYes.addEventListener("click", () => {
     let postId = document.getElementById("postImg").getAttribute("postid");
-    containerResize();
     fetch(`/deletePost/${postId}`, {
       method: "GET"
     })
@@ -156,6 +158,9 @@ if (sureYes) {
         console.log(message);
         document.querySelector(".postsContainer").innerHTML = "";
         loadPosts(login, 0, 0);
+        let postsCount = document.getElementById("postsCount");
+        let postsCountNum = parseInt(postsCount.innerHTML);
+        postsCount.innerHTML = postsCountNum - 1;
         document.getElementById("areYouSure").style.display = "none";
         document.getElementById("deletePost").style.display = "block";
       });
