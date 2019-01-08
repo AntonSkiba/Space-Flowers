@@ -147,9 +147,8 @@ function openPost(image) {
 
       let comments = document.getElementById("comments");
       let delBtn = document.getElementById("deletePost");
-      let offset = delBtn ? 220 : 180;
+      let offset = delBtn ? 205 : 160;
       comments.style.height = `${imgHeight - offset}px`;
-      console.log(imgHeight);
       clearInterval(getheight);
     }
   }, 60);
@@ -166,6 +165,11 @@ function openPost(image) {
       let date = document.getElementById("date");
       date.innerHTML = postContent.date;
       likesNum.innerHTML = postContent.likes.length;
+      document.getElementById("comments").innerHTML = "";
+      postContent.comments.forEach((item, index) => {
+        console.log(item);
+        showComment(item.name, item.text, item.date, index);
+      });
       if (!postContent.userLikes) {
         likeToggler(true);
       } else {
@@ -174,26 +178,77 @@ function openPost(image) {
     });
 }
 
+function showComment(user, text, date, index) {
+  let comments = document.getElementById("comments");
+
+  let comBlock = document.createElement("div");
+  comBlock.setAttribute("id", "commentId_" + index);
+  comBlock.setAttribute("class", "comment");
+  let comInfo = document.createElement("div");
+  comInfo.setAttribute("class", "comInfo");
+  let userLink = document.createElement("a");
+  userLink.setAttribute("class", "nav-link comLink");
+  userLink.setAttribute("href", `/user/${user}`);
+  userLink.innerHTML = user;
+  comInfo.appendChild(userLink);
+  let userDate = document.createElement("span");
+  userDate.setAttribute("class", "comDate");
+  userDate.innerHTML = date;
+  comInfo.appendChild(userDate);
+
+  let comText = document.createElement("span");
+  comText.setAttribute("class", "comText");
+  let comValue = text
+    .split("<")
+    .join("&lt;")
+    .split(">")
+    .join("&gt;");
+  let linkRegular = /(https?:\/\/|ftp:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim;
+  comValue = comValue
+    .split(" ")
+    .map(word => {
+      for (let i = 1; i < Math.floor(word.length / 25) + 1; i++) {
+        word = word.split("");
+        word.splice(i * 25, 0, "- ");
+        word = word.join("");
+      }
+      return word;
+    })
+    .join(" ");
+
+  comValue = comValue.replace(linkRegular, '<a href="$&">$&</a>');
+
+  comText.innerHTML = comValue;
+
+  comBlock.appendChild(comInfo);
+  comBlock.appendChild(comText);
+  comments.appendChild(comBlock);
+}
+
 let likeBtn = document.getElementById("like");
 let unlikeBtn = document.getElementById("unlike");
 
-likeBtn.addEventListener("click", () => {
-  let postId = document.getElementById("postImg").getAttribute("postid");
-  setLike(postId);
-});
+if (likeBtn) {
+  likeBtn.addEventListener("click", () => {
+    let postId = document.getElementById("postImg").getAttribute("postid");
+    setLike(postId);
+  });
+}
 
-unlikeBtn.addEventListener("click", () => {
-  let postId = document.getElementById("postImg").getAttribute("postid");
-  setUnlike(postId);
-});
+if (unlikeBtn) {
+  unlikeBtn.addEventListener("click", () => {
+    let postId = document.getElementById("postImg").getAttribute("postid");
+    setUnlike(postId);
+  });
+}
 
 function likeToggler(type) {
   if (type) {
-    likeBtn.style.display = "block";
-    unlikeBtn.style.display = "none";
+    if (likeBtn) likeBtn.style.display = "block";
+    if (unlikeBtn) unlikeBtn.style.display = "none";
   } else {
-    likeBtn.style.display = "none";
-    unlikeBtn.style.display = "block";
+    if (likeBtn) likeBtn.style.display = "none";
+    if (unlikeBtn) unlikeBtn.style.display = "block";
   }
 }
 

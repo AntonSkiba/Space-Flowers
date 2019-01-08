@@ -638,7 +638,7 @@ app.get("/postContent/:login/:i/:userLogin", (req, res) => {
   let userLogin = req.params.userLogin;
   users.findOne({ login: login }, (err, user) => {
     let index = user.posts.length - i - 1;
-    if (err || user === null) {
+    if (err || user === null || index < 0) {
       res.send({
         user: "none"
       });
@@ -751,6 +751,53 @@ app.get("/unlike/:userSetLike/:userGetLike/:postId", (req, res) => {
           } else {
             res.send("Вы уже отменили лайк.");
           }
+        } else {
+          res.send("У пользователя нет постов.");
+        }
+      } else {
+        res.send("У пользователя еще не было постов.");
+      }
+    }
+  });
+});
+
+app.post("/setComment", jsonParser, (req, res) => {
+  let comment = req.body;
+  console.log(comment);
+  users.findOne({ login: comment.getComUser }, (err, profile) => {
+    if (err || profile === null) {
+      console.log("why");
+      res.send("Пользователь был удалён.");
+    } else {
+      if (profile.posts) {
+        if (profile.posts.length) {
+          let index = profile.posts.length - comment.postId - 1;
+          let posts = profile.posts;
+          let post = posts[index];
+          let postComments = post.comments ? post.comments : [];
+          postComments.push({
+            name: comment.setComUser,
+            text: comment.text,
+            date: getDate(comment.date)
+          });
+          posts[index].comments = postComments;
+          users.updateOne(
+            { login: profile.login },
+            {
+              $set: {
+                posts: posts
+              }
+            },
+            err => {
+              if (err) res.send("Не вышло оставить комментарий");
+              else
+                res.send(
+                  `${comment.setComUser} прокомментировал пост № ${
+                    comment.postId
+                  } пользователя ${comment.getComUser}`
+                );
+            }
+          );
         } else {
           res.send("У пользователя нет постов.");
         }

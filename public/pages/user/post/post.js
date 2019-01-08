@@ -132,6 +132,7 @@ let deletePost = document.getElementById("deletePost");
 
 if (deletePost) {
   deletePost.addEventListener("click", () => {
+    document.getElementById("hiddenComments").style.display = "none";
     deletePost.style.display = "none";
     document.getElementById("areYouSure").style.display = "block";
   });
@@ -142,6 +143,7 @@ let sureYes = document.getElementById("sureYes");
 
 if (sureYes) {
   sureNo.addEventListener("click", () => {
+    document.getElementById("hiddenComments").style.display = "block";
     document.getElementById("areYouSure").style.display = "none";
     document.getElementById("deletePost").style.display = "block";
   });
@@ -163,6 +165,72 @@ if (sureYes) {
         postsCount.innerHTML = postsCountNum - 1;
         document.getElementById("areYouSure").style.display = "none";
         document.getElementById("deletePost").style.display = "block";
+        document.getElementById("hiddenComments").style.display = "block";
       });
   });
+}
+
+let commArea = document.getElementById("setComment");
+
+if (commArea) {
+  commArea.addEventListener("input", () => {
+    let sendBtn = document.getElementById("sendComment");
+    let realValue = commArea.value
+      .split("\n")
+      .join("")
+      .split(" ")
+      .join("");
+    if (realValue) {
+      sendBtn.style.visibility = "visible";
+      sendBtn.addEventListener("click", sendComment);
+    } else {
+      sendBtn.style.visibility = "hidden";
+      sendBtn.removeEventListener("click", sendComment);
+    }
+  });
+}
+
+function sendComment() {
+  let postId = document.getElementById("postImg").getAttribute("postid");
+  let commentText = commArea.value.replace(/\s\s+/g, " ");
+  let commentBody = {
+    setComUser: isUserLogin.split("\n")[1],
+    getComUser: login.split("\n")[1],
+    postId: postId,
+    text: commentText,
+    date: new Date().getTime()
+  };
+
+  console.log(commentBody);
+  fetch("/setComment", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(commentBody)
+  })
+    .then(response => {
+      return response.text();
+    })
+    .then(message => {
+      document.getElementById("sendComment").style.visibility = "hidden";
+      commArea.value = "";
+      console.log(message);
+      let countComments = document.getElementsByClassName("comment").length;
+      showComment(
+        commentBody.setComUser,
+        commentBody.text,
+        getDate(commentBody.date),
+        countComments
+      );
+    });
+}
+
+function getDate(ms) {
+  let unchangeTime = new Date(ms).toLocaleString();
+  unchangeTime = unchangeTime.split(":")[0] + ":" + unchangeTime.split(":")[1];
+  unchangeTime = unchangeTime.split(",").join("");
+
+  return unchangeTime;
 }

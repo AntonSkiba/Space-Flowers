@@ -10,7 +10,7 @@
       <div class="operationsPost">
         <div class="blueDivider"></div>
         <% if(isUser) { %>
-        <button type="button" id="deletePost" class="btn">Удалить</button>
+        <button type="button" id="deletePost" class="btn">Удалить пост</button>
         <div id="areYouSure">
           <span class="label">Вы уверены?</span><br />
           <button type="button" id="sureYes" class="btn" data-dismiss="modal">Да</button>
@@ -52,7 +52,6 @@
       <img src="/public/pages/user/icons/close.svg" alt="" width="20">
     </div>
     <div id="postDate">
-      <span class="name">Дата: </span>
       <span id="date"></span>
     </div>
     <div id="likes">
@@ -73,8 +72,13 @@
     <div id="hiddenComments">
       <div id="comments">
       </div>
+      <% if (header.myLogin) { %>
       <div class="blueDivider"></div>
-      <textarea type="text" id="setComment" rows="3" placeholder="Комментарий..."></textarea>
+      <textarea type="text" id="setComment" maxlength="1000" rows="3" placeholder="Комментарий..."></textarea>
+      <div id="sendComment" class="likeIcons">
+        <img src="/public/pages/user/icons/send.svg" alt="" width="25">
+      </div>
+      <% } %>
     </div>
   </div>
 
