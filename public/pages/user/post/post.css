@@ -101,7 +101,7 @@
 
 #comments {
   width: 245px;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 #comments .comText {
@@ -238,11 +238,6 @@
 
 .postImage {
   margin: auto 0;
-}
-
-#justPost {
-  padding: auto;
-  min-height: 500px;
 }
 
 #newPostImage.highlight {

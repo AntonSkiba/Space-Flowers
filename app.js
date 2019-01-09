@@ -294,6 +294,13 @@ app.get("/subscribe/:login", (req, res) => {
                   }
                 },
                 () => {
+                  setNotification(
+                    subsUser.login,
+                    user.login,
+                    "subscribe",
+                    "подписался",
+                    new Date().getTime()
+                  );
                   console.log(
                     "Пользователь " +
                       user.login +
@@ -695,10 +702,21 @@ app.get("/like/:userSetLike/:userGetLike/:postId", (req, res) => {
               },
               err => {
                 if (err) res.send("Не лайкнулось");
-                else
-                  res.send(
-                    `${userSetLike} лайкнул пост № ${postId} пользователя ${userGetLike}`
+                else {
+                  let textNotif = `оценил пост № ${profile.posts.length -
+                    index -
+                    1}`;
+                  setNotification(
+                    profile.login,
+                    userSetLike,
+                    "like",
+                    textNotif,
+                    new Date().getTime()
                   );
+                  res.send(
+                    `${userSetLike} ${textNotif} пользователя ${userGetLike}`
+                  );
+                }
               }
             );
           } else {
@@ -790,12 +808,24 @@ app.post("/setComment", jsonParser, (req, res) => {
             },
             err => {
               if (err) res.send("Не вышло оставить комментарий");
-              else
-                res.send(
-                  `${comment.setComUser} прокомментировал пост № ${
-                    comment.postId
-                  } пользователя ${comment.getComUser}`
+              else {
+                let textNotif = `прокомментировал пост № ${profile.posts
+                  .length -
+                  index -
+                  1}`;
+                setNotification(
+                  profile.login,
+                  comment.setComUser,
+                  "comment",
+                  textNotif,
+                  comment.date
                 );
+                res.send(
+                  `${comment.setComUser} ${textNotif} пользователя ${
+                    comment.getComUser
+                  }`
+                );
+              }
             }
           );
         } else {
@@ -807,6 +837,76 @@ app.post("/setComment", jsonParser, (req, res) => {
     }
   });
 });
+
+// notifications
+
+// replace with socket.io
+app.get("/getNotifications/:user", (req, res) => {
+  let login = req.params.user;
+  users.findOne({ login: login }, (err, user) => {
+    let notifs = [];
+    if (user.notifs) {
+      user.notifs.forEach(notif => {
+        if (notif.newNotif) notifs.push(notif);
+      });
+    }
+    res.send(notifs);
+  });
+});
+
+app.get("/userLooked/:login/:count", (req, res) => {
+  let count = req.params.count;
+  let login = req.params.login;
+  users.findOne({ login: login }, (err, user) => {
+    if (user.notifs) {
+      let notifs = [];
+      user.notifs.forEach(notif => {
+        let lkNotif = notif;
+        if (notif.newNotif && count > 0) {
+          lkNotif.newNotif = false;
+          count--;
+        }
+        notifs.push(lkNotif);
+      });
+      users.updateOne(
+        { login: user.login },
+        {
+          $set: {
+            notifs: notifs
+          }
+        }
+      );
+      res.send("Просмотрено");
+    } else {
+      res.send("Не просмотрено");
+    }
+  });
+});
+
+function setNotification(login, callUser, type, text, date) {
+  let dateString = getDate(date);
+  if (login != callUser) {
+    users.findOne({ login: login }, (err, user) => {
+      let notifs = user.notifs ? user.notifs : [];
+      let notif = {
+        user: callUser,
+        type: type,
+        text: text,
+        newNotif: true,
+        date: dateString
+      };
+      notifs.push(notif);
+      users.updateOne(
+        { login: user.login },
+        {
+          $set: {
+            notifs: notifs
+          }
+        }
+      );
+    });
+  }
+}
 
 // other
 

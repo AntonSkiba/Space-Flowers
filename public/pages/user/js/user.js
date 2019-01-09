@@ -135,15 +135,7 @@ function openPost(image) {
 
   let getheight = setInterval(() => {
     if (postImg.offsetHeight > 0) {
-      let imgHeight;
-      if (postImg.offsetHeight < 500) {
-        let margImg = (500 - postImg.offsetHeight) / 2;
-        imgHeight = 500 + margImg;
-        document.getElementById("postImg").style.marginTop = `${margImg}px`;
-      } else {
-        document.getElementById("postImg").style.marginTop = "0";
-        imgHeight = postImg.offsetHeight;
-      }
+      let imgHeight = postImg.offsetHeight;
 
       let comments = document.getElementById("comments");
       let delBtn = document.getElementById("deletePost");
@@ -167,7 +159,6 @@ function openPost(image) {
       likesNum.innerHTML = postContent.likes.length;
       document.getElementById("comments").innerHTML = "";
       postContent.comments.forEach((item, index) => {
-        console.log(item);
         showComment(item.name, item.text, item.date, index);
       });
       if (!postContent.userLikes) {
@@ -223,6 +214,7 @@ function showComment(user, text, date, index) {
   comBlock.appendChild(comInfo);
   comBlock.appendChild(comText);
   comments.appendChild(comBlock);
+  comments.scrollTop = 9999;
 }
 
 let likeBtn = document.getElementById("like");
@@ -331,18 +323,6 @@ setInterval(() => {
     );
   }
 }, 1000);
-
-function isVisible(elem) {
-  if (elem) {
-    var coords = elem.getBoundingClientRect();
-
-    var windowHeight = document.documentElement.clientHeight;
-    var topVisible = coords.top > 0 && coords.top < windowHeight;
-    var bottomVisible = coords.bottom < windowHeight && coords.bottom > 0;
-
-    return topVisible || bottomVisible;
-  } else return false;
-}
 
 function containerResize() {
   let content = document.querySelector(".user_content");

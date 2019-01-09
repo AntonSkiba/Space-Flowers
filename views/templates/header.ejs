@@ -9,6 +9,16 @@
       <li class="nav-item">
         <a class="nav-link header_link <%=header.authorization %>" href="/authorization">Авторизация</a>
       </li>
+      <% if(header.myLogin) { %>
+      <li class="nav-item dropdown">
+        <a class="nav-link header_link dropdown-toggle" href="#" id="notifDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Уведомления
+          <span id="notifsCount"></span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right" id="notifList" aria-labelledby="notifDropdown">
+        </div>
+      </li>
+      <% } %>
       <li class="nav-item dropdown <%=header.myProfile %>">
         <a class="nav-link header_link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <%=header.myLogin %>
@@ -23,3 +33,5 @@
     </ul>
   </div>
 </nav>
+
+<script src="/public/main/js/notifications.js" charset="utf-8"></script>
