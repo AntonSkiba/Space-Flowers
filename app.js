@@ -522,14 +522,12 @@ app.post("/plagiarismTest", (req, res) => {
                   if (isEmpty(simObj)) {
                     message = "original";
                   } else {
-                    top: for (key in simObj) {
+                    let maxSim = 0;
+                    for (key in simObj) {
                       for (postIndex in simObj[key]) {
-                        if (simObj[key][postIndex] > 90) {
-                          message = key + "___" + postIndex + "___plagiarism";
-                          break top;
-                        } else {
-                          message = key + "___" + postIndex + "___reproduction";
-                          break top;
+                        if (parseFloat(simObj[key][postIndex]) > maxSim) {
+                          maxSim = parseFloat(simObj[key][postIndex]);
+                          message = key + "___" + postIndex + "___" + maxSim;
                         }
                       }
                     }
@@ -657,7 +655,8 @@ app.get("/postContent/:login/:i/:userLogin", (req, res) => {
         userLikes: user.posts[index].likes
           ? user.posts[index].likes.includes(userLogin)
           : false,
-        date: date
+        date: date,
+        status: user.posts[index].status
       });
     }
   });

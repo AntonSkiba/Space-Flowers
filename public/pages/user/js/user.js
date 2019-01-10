@@ -34,9 +34,12 @@ if (addNewPost) {
     document.getElementById("likes").style.height = "1px";
     console.log("click");
     document.getElementById("justPost").style.display = "none";
+    document.getElementById("status").innerHTML = "Сходство";
+    document.getElementById("statusLink").style.visibility = "hidden";
+    document.getElementById("similarity").innerHTML = "";
     document.getElementById("hiddenComments").style.display = "none";
     document.getElementById("postDate").style.display = "none";
-    document.getElementById("offsetDivider").style.marginTop = "70px";
+    document.getElementById("offsetDivider").style.marginTop = "85px";
     let newPost = document.getElementById("newPost");
     newPost.style.display = "block";
     document.getElementById("newPostImage").style.border = "2px solid #ccc";
@@ -114,7 +117,7 @@ function openPost(image) {
   document.getElementById("justPost").style.display = "block";
   document.getElementById("hiddenComments").style.display = "block";
   document.getElementById("postDate").style.display = "block";
-  document.getElementById("offsetDivider").style.marginTop = "0px";
+  document.getElementById("offsetDivider").style.marginTop = "15px";
   if (document.getElementById("newPost"))
     document.getElementById("newPost").style.display = "none";
   if (document.getElementById("deletePost")) {
@@ -139,7 +142,7 @@ function openPost(image) {
 
       let comments = document.getElementById("comments");
       let delBtn = document.getElementById("deletePost");
-      let offset = delBtn ? 205 : 160;
+      let offset = delBtn ? 220 : 175;
       comments.style.height = `${imgHeight - offset}px`;
       clearInterval(getheight);
     }
@@ -158,6 +161,7 @@ function openPost(image) {
       date.innerHTML = postContent.date;
       likesNum.innerHTML = postContent.likes.length;
       document.getElementById("comments").innerHTML = "";
+      showStatus(postContent.status);
       postContent.comments.forEach((item, index) => {
         showComment(item.name, item.text, item.date, index);
       });
@@ -167,6 +171,35 @@ function openPost(image) {
         likeToggler(false);
       }
     });
+}
+
+function showStatus(message) {
+  let status = document.getElementById("status");
+  let statusLink = document.getElementById("statusLink");
+  let similarity = document.getElementById("similarity");
+  if (message === "original") {
+    status.innerHTML = "Оригинал";
+    statusLink.style.visibility = "hidden";
+    similarity.innerHTML = "";
+  } else {
+    let user = message.split("___")[0];
+    let post = parseInt(message.split("___")[1]) + 1;
+    let sim = parseFloat(message.split("___")[2]);
+    status.innerHTML = "Сходтво с " + post + " постом ";
+    statusLink.setAttribute("href", `/user/${user}`);
+    statusLink.innerHTML = user;
+    statusLink.style.visibility = "visible";
+    let persColor = (-80 + sim) / 20;
+    console.log(persColor);
+    similarity.innerHTML = `: <span style="color: ${getColor(
+      persColor
+    )}">${sim}%</span>`;
+  }
+}
+
+function getColor(value) {
+  var hue = ((1 - value) * 80).toString(10);
+  return ["hsl(", hue, ",50%,50%)"].join("");
 }
 
 function showComment(user, text, date, index) {

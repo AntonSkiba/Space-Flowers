@@ -99,6 +99,27 @@
   color: #97a7b3;
 }
 
+#postStatus {
+  font-size: 12px;
+  position: absolute;
+  width: 235px;
+  top: 90px;
+  color: #97a7b3;
+}
+
+#statusLink {
+  max-width: 70px;
+  padding: 0 !important;
+  display: inline-block;
+}
+
+#loadBlock {
+  top: 32%;
+  left: 160px;
+  position: absolute;
+  display: none;
+}
+
 #comments {
   width: 245px;
   overflow-y: scroll;

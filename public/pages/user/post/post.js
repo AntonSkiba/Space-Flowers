@@ -54,11 +54,15 @@ function postImages(file) {
     reader.readAsDataURL(file);
     reader.onloadend = function() {
       let img = reader.result;
+      let loadBlock = document.getElementById("loadBlock");
       document.getElementById("newPostImage").style.display = "none";
       let imgArea = document.getElementById("loadedImg");
       let lastPost = imgArea.querySelector(".postImage");
       if (lastPost) imgArea.removeChild(lastPost);
       imgArea.appendChild(resizeToPost(img));
+      loadBlock.style.display = "block";
+      imgArea.style.filter = "opacity(50%)";
+      document.getElementById("savePost").style.display = "none";
       document.getElementById("loadedImg").style.display = "block";
       console.log(file);
       let formData = new FormData();
@@ -72,6 +76,10 @@ function postImages(file) {
         })
         .then(mess => {
           console.log(mess);
+          showStatus(mess);
+          document.getElementById("savePost").style.display = "inline-block";
+          loadBlock.style.display = "none";
+          imgArea.style.filter = "none";
         });
     };
   }
