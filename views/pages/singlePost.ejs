@@ -3,39 +3,31 @@
 
 <head>
   <meta charset="utf-8">
-  <title>
-    <%=user.login%>
-  </title>
+  <title>Пост</title>
   <link rel="shortcut icon" href="/public/main/img/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="/public/main/css/main.css">
+  <link rel="stylesheet" href="/public/pages/user/singlePost/singlePost.css">
   <link rel="stylesheet" href="/public/pages/user/css/user.css">
+  <link rel="stylesheet" href="/public/pages/user/isUser/header.css" />
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 </head>
 
 <body>
   <% include ../templates/header.ejs %>
-  <div class="profile">
-    <div class="profile_header">
-      <% include ../templates/user/isUser.ejs %>
-    </div>
-    <div class="user_content">
-      <div class="postsContainer"></div>
-      <div class="modal fade" id="post" tabindex="-1" role="dialog" aria-labelledby="post" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
-          <div class="modal-content">
-            <div class="modal-body">
-              <% include ../templates/user/post.ejs %>
-            </div>
-          </div>
+  <div class="singlePost">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <% include ../templates/user/post.ejs %>
         </div>
       </div>
     </div>
   </div>
 
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/1.1.0/trianglify.min.js"></script>
   <script src="/public/pages/user/js/openPost.js" charset="utf-8"></script>
-  <script src="/public/pages/user/js/user.js" charset="utf-8"></script>
+  <script src="/public/pages/user/singlePost/singlePost.js" charset="utf-8"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>

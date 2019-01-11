@@ -37,7 +37,7 @@
   filter: brightness(0.5);
 }
 
-.profile .user_content .modal-dialog {
+.modal-dialog {
   min-width: 800px;
   min-height: 600px !important;
 }

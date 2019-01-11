@@ -837,6 +837,51 @@ app.post("/setComment", jsonParser, (req, res) => {
   });
 });
 
+app.get("/post/:post", (req, res, next) => {
+  let post = req.params.post;
+  let cookies = parseCookies(req);
+  if (post) {
+    let login = post.split("__")[0];
+    let postId = post.split("__")[1];
+    if (!login || !postId) {
+      next();
+    } else {
+      users.findOne({ login: login }, (err, result) => {
+        if (err || result === null || !result.posts[postId]) {
+          next();
+        } else if (cookies.auth === undefined || cookies.auth === "undefined") {
+          res.render("pages/singlePost", {
+            header: headers.isGuest,
+            user: result,
+            isUser: false
+          });
+        } else if (cookies.auth === result.authorization) {
+          let isUserProfile = headers.isUser;
+          isUserProfile.myLogin = result.login;
+          res.render("pages/singlePost", {
+            header: isUserProfile,
+            user: result,
+            isUser: true
+          });
+        } else {
+          users.findOne({ authorization: cookies.auth }, (err, myProfile) => {
+            let isAnotherUser = headers.anotherUser;
+            isAnotherUser.myLogin = myProfile.login;
+            res.render("pages/singlePost", {
+              header: isAnotherUser,
+              user: result,
+              isUser: false,
+              subscribe: myProfile.subscribes
+                ? myProfile.subscribes.includes(result.login)
+                : false
+            });
+          });
+        }
+      });
+    }
+  } else next();
+});
+
 // notifications
 
 // replace with socket.io

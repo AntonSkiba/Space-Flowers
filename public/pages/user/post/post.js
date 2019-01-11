@@ -125,7 +125,7 @@ if (savePost) {
           loadPosts(login, 0, 0);
           let loadedImgSrc = document.querySelector("#loadedImg .postImage")
             .src;
-          openPost(loadedImgSrc);
+          openPost(loadedImgSrc, login, 0);
           let postsCount = document.getElementById("postsCount");
           let postsCountNum = parseInt(postsCount.innerHTML);
           postsCount.innerHTML = postsCountNum + 1;
@@ -199,11 +199,15 @@ if (commArea) {
 }
 
 function sendComment() {
+  let login = document
+    .getElementById("userNamePost")
+    .innerHTML.split(" ")
+    .join("");
   let postId = document.getElementById("postImg").getAttribute("postid");
   let commentText = commArea.value.replace(/\s\s+/g, " ");
   let commentBody = {
-    setComUser: isUserLogin.split("\n")[1],
-    getComUser: login.split("\n")[1],
+    setComUser: isUserLogin.split("\n").join(""),
+    getComUser: login.split("\n").join(""),
     postId: postId,
     text: commentText,
     date: new Date().getTime()
