@@ -20,10 +20,12 @@ if (userLogin) {
         return response.json();
       })
       .then(notifs => {
-        if (notifs.length)
-          document.getElementById("notifsCount").innerHTML = `+${
-            notifs.length
-          }`;
+        let length = 0;
+        notifs.forEach(notif => {
+          if (notif.newNotif) length++;
+        });
+        if (length)
+          document.getElementById("notifsCount").innerHTML = `+${length}`;
         else document.getElementById("notifsCount").innerHTML = "";
       });
   }, 500);
@@ -44,7 +46,11 @@ function showNotifs() {
           let notif = notifs[i];
           let postId = parseInt(notif.text.split("№")[1]);
           let notifCont = document.createElement("div");
-          notifCont.setAttribute("class", "notif");
+          if (notif.newNotif) {
+            notifCont.setAttribute("class", "notif newNotif");
+          } else {
+            notifCont.setAttribute("class", "notif");
+          }
           notifCont.setAttribute("id", `notif_${i}`);
           let notifInfo = document.createElement("div");
           notifInfo.setAttribute("class", "notifInfo");
@@ -99,7 +105,7 @@ function getMinPostImage(login, i, postsContainer, notifId) {
       let image = URL.createObjectURL(postImg);
       let postElem = document.createElement("div");
       postElem.setAttribute("class", "postBlock animation");
-      postElem.setAttribute("id", notifId);
+      postElem.setAttribute("id", i);
       postElem.style.background = `url(${image}) center no-repeat`;
       postElem.style.backgroundSize = "cover";
       postsContainer.appendChild(postElem);
@@ -118,7 +124,8 @@ function getTextWithUsers(text) {
     /@[A-Za-zА-Яа-яЁё0-9\_\.\-]+/gi,
     '<a class="textUserLink" href="/user/$&">$&</a>'
   );
-  return text.split("@").join("");
+  text = text.split("@").join("");
+  return text.split("$at").join("@");
 }
 
 function isVisible(elem) {

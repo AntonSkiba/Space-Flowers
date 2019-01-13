@@ -74,6 +74,10 @@ body::-webkit-scrollbar-track {
   height: 50px;
 }
 
+.newNotif {
+  background-image: radial-gradient(#ceeefc, #fcf4fc, white);
+}
+
 .notif .notifInfo {
   float: left;
   width: 290px;

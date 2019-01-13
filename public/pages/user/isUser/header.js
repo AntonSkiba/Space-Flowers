@@ -14,6 +14,11 @@ if (toggleOnEdit) {
       "dropImages"
     )[0].style.background = background;
     document.getElementsByClassName("dropImages")[1].style.background = photo;
+    description = description.replace(/@/gi, "$at");
+    description = description.replace(
+      /<a class=\"textUserLink\" href=\"\/user\/\S+">\S+<\/a>/gi,
+      "@$&"
+    );
     document.getElementById("descArea").value = description.replace(
       /<\/?[^>]+>/g,
       ""

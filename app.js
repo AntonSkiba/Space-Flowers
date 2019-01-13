@@ -1048,8 +1048,8 @@ app.get("/getNotifications/:user", (req, res) => {
   users.findOne({ login: login }, (err, user) => {
     let notifs = [];
     if (user.notifs) {
-      user.notifs.forEach(notif => {
-        if (notif.newNotif) notifs.push(notif);
+      user.notifs.forEach((notif, i, array) => {
+        if (notif.newNotif || i > array.length - 10) notifs.push(notif);
       });
     }
     res.send(notifs);
