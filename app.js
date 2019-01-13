@@ -208,16 +208,21 @@ app.get("/user/:login", (req, res, next) => {
       });
     } else {
       users.findOne({ authorization: cookies.auth }, (err, myProfile) => {
-        let isAnotherUser = headers.anotherUser;
-        isAnotherUser.myLogin = myProfile.login;
-        res.render("pages/user", {
-          header: isAnotherUser,
-          user: result,
-          isUser: false,
-          subscribe: myProfile.subscribes
-            ? myProfile.subscribes.includes(result.login)
-            : false
-        });
+        if (err || myProfile === null) {
+          res.cookie("auth", undefined);
+          res.redirect("/");
+        } else {
+          let isAnotherUser = headers.anotherUser;
+          isAnotherUser.myLogin = myProfile.login;
+          res.render("pages/user", {
+            header: isAnotherUser,
+            user: result,
+            isUser: false,
+            subscribe: myProfile.subscribes
+              ? myProfile.subscribes.includes(result.login)
+              : false
+          });
+        }
       });
     }
   });
@@ -247,15 +252,22 @@ app.get("/userPosts/:login", (req, res) => {
   });
 });
 
-app.get("/getPost/:login/:i", (req, res) => {
+app.get("/getPost/:login/:id", (req, res) => {
   let login = req.params.login;
-  let i = req.params.i;
+  let id = req.params.id;
   users.findOne({ login: login }, (err, user) => {
-    let index = user.posts.length - i - 1;
-    fs.exists(__dirname + user.posts[index].url, exists => {
-      if (exists) res.sendFile(__dirname + user.posts[index].url);
-      else res.send("none");
+    let index = -1;
+    user.posts.forEach((post, i) => {
+      if (post.url.split(".jpg")[0] === "/posts/post-" + id) {
+        index = i;
+      }
     });
+    if (user.posts[index]) {
+      fs.exists(__dirname + user.posts[index].url, exists => {
+        if (exists) res.sendFile(__dirname + user.posts[index].url);
+        else res.send("none");
+      });
+    } else res.send("none");
   });
 });
 
@@ -398,7 +410,7 @@ function returnStorage(login) {
   return multer.diskStorage({
     destination: `./imagesOfUsers/${login}`,
     filename: function(req, file, cb) {
-      cb(null, file.fieldname + "-" + login + path.extname(file.originalname));
+      cb(null, file.fieldname + "-" + login + ".jpg");
     }
   });
 }
@@ -462,30 +474,72 @@ function isEmpty(obj) {
 
 //posts
 app.get("/posts", (req, res) => {
+  let cookies = parseCookies(req);
   if (users) {
-    users
-      .find()
-      .sort({ updateDate: -1 })
-      .toArray((err, result) => {
-        if (err || result === null) res.send({ users: "none" });
-        else
-          res.send({
-            users: result.map(item => {
-              return {
-                login: item.login,
-                description: item.description ? item.description : ""
-              };
-            })
+    if (cookies.auth) {
+      users.findOne({ authorization: cookies.auth }, (err, user) => {
+        if (err || user === null) {
+          guestPosts().then(posts => {
+            res.send(posts);
           });
+        } else {
+          if (user.postNotifs) {
+            let posts = user.postNotifs;
+            res.send(posts);
+          } else {
+            guestPosts().then(posts => {
+              res.send(posts);
+            });
+          }
+        }
       });
+    } else {
+      guestPosts().then(posts => {
+        res.send(posts);
+      });
+    }
   }
 });
+
+function guestPosts() {
+  let posts = [];
+  return new Promise(function(resolve, reject) {
+    users.find().toArray((err, result) => {
+      if (!(err || result === null)) {
+        for (let i = 0; i < result.length; i++) {
+          if (result[i].posts) {
+            for (let j = 0; j < result[i].posts.length; j++) {
+              let post = result[i].posts[j].url
+                .split("/post-")[1]
+                .split(".jpg")[0];
+              posts.push(post);
+            }
+          }
+        }
+      }
+
+      posts.sort((a, b) => {
+        a = parseInt(a.split("-")[0]);
+        b = parseInt(b.split("-")[0]);
+        if (a < b) {
+          return 1;
+        }
+        if (a > b) {
+          return -1;
+        }
+        return 0;
+      });
+      if (posts.length > 99) posts.slice(0, 99);
+      resolve(posts);
+    });
+  });
+}
 
 function returnPostStorage(login, count) {
   return multer.diskStorage({
     destination: "./posts",
     filename: function(req, file, cb) {
-      cb(null, "post-" + count + "-" + login + path.extname(file.originalname));
+      cb(null, "post-" + count + "-" + login + ".jpg");
     }
   });
 }
@@ -602,13 +656,45 @@ app.get("/saveNewPost", (req, res) => {
           },
           err => {
             if (err) res.send("Не сохранилось");
-            else res.send("Пост: " + profile.tempPost.url + " сохранён.");
+            else {
+              let subscribers = profile.subscribers ? profile.subscribers : [];
+              subscribers.push(
+                profile.tempPost.url.split("-")[2].split(".jpg")[0]
+              );
+              setNewPostNotif(
+                profile.tempPost.url.split("/post-")[1].split(".jpg")[0],
+                subscribers
+              );
+              res.send("Пост: " + profile.tempPost.url + " сохранён.");
+            }
           }
         );
       } else res.send("Не сохранилось");
     }
   });
 });
+
+function setNewPostNotif(newPostId, subs) {
+  subs.forEach(user => {
+    users.findOne({ login: user }, (err, profile) => {
+      if (err || profile === null) {
+        console.log("Пользователь в подписках был удален");
+      } else {
+        let postNotifs = profile.postNotifs ? profile.postNotifs : [];
+        postNotifs.unshift(newPostId);
+        if (postNotifs.length > 1000) postNotifs.pop();
+        users.updateOne(
+          { login: profile.login },
+          {
+            $set: {
+              postNotifs: postNotifs
+            }
+          }
+        );
+      }
+    });
+  });
+}
 
 app.get("/deletePost/:postId", (req, res) => {
   let cookies = parseCookies(req);
@@ -618,8 +704,13 @@ app.get("/deletePost/:postId", (req, res) => {
       res.send("Произошел троллинг :)))000))0");
     } else {
       let posts = profile.posts;
-      let index = posts.length - postId - 1;
-      posts.splice(index, 1);
+      let index = -1;
+      profile.posts.forEach((post, i) => {
+        if (post.url.split(".jpg")[0] === "/posts/post-" + postId) {
+          index = i;
+        }
+      });
+      let delPost = posts.splice(index, 1);
       users.updateOne(
         { login: profile.login },
         {
@@ -630,19 +721,56 @@ app.get("/deletePost/:postId", (req, res) => {
         },
         err => {
           if (err) res.send("Не удалилось");
-          else res.send("Пост удалён.");
+          else {
+            let subscribers = profile.subscribers ? profile.subscribers : [];
+            subscribers.push(delPost[0].url.split("-")[2].split(".jpg")[0]);
+            deletePostNotifs(
+              delPost[0].url.split("/post-")[1].split(".jpg")[0],
+              subscribers
+            );
+            res.send("Пост удалён.");
+          }
         }
       );
     }
   });
 });
 
-app.get("/postContent/:login/:i/:userLogin", (req, res) => {
+function deletePostNotifs(postId, subs) {
+  subs.forEach(user => {
+    users.findOne({ login: user }, (err, profile) => {
+      if (err || profile === null) {
+        console.log("Пользователь в подписках был удален");
+      } else {
+        let postNotifs = profile.postNotifs ? profile.postNotifs : [];
+        let index = postNotifs.indexOf(postId);
+        if (index !== -1) {
+          postNotifs.splice(index, 1);
+          users.updateOne(
+            { login: profile.login },
+            {
+              $set: {
+                postNotifs: postNotifs
+              }
+            }
+          );
+        }
+      }
+    });
+  });
+}
+
+app.get("/postContent/:login/:id/:userLogin", (req, res) => {
   let login = req.params.login;
-  let i = req.params.i;
+  let id = req.params.id;
   let userLogin = req.params.userLogin;
   users.findOne({ login: login }, (err, user) => {
-    let index = user.posts.length - i - 1;
+    let index = -1;
+    user.posts.forEach((post, i) => {
+      if (post.url.split(".jpg")[0] === "/posts/post-" + id) {
+        index = i;
+      }
+    });
     if (err || user === null || index < 0) {
       res.send({
         user: "none"
@@ -684,7 +812,12 @@ app.get("/like/:userSetLike/:userGetLike/:postId", (req, res) => {
     } else {
       if (profile.posts) {
         if (profile.posts.length) {
-          let index = profile.posts.length - postId - 1;
+          let index = -1;
+          profile.posts.forEach((post, i) => {
+            if (post.url.split(".jpg")[0] === "/posts/post-" + postId) {
+              index = i;
+            }
+          });
           let posts = profile.posts;
           let post = posts[index];
           let postLikes = post.likes ? post.likes : [];
@@ -702,9 +835,7 @@ app.get("/like/:userSetLike/:userGetLike/:postId", (req, res) => {
               err => {
                 if (err) res.send("Не лайкнулось");
                 else {
-                  let textNotif = `оценил пост № ${profile.posts.length -
-                    index -
-                    1}`;
+                  let textNotif = `оценил пост № ${postId}`;
                   setNotification(
                     profile.login,
                     userSetLike,
@@ -741,7 +872,12 @@ app.get("/unlike/:userSetLike/:userGetLike/:postId", (req, res) => {
     } else {
       if (profile.posts) {
         if (profile.posts.length) {
-          let index = profile.posts.length - postId - 1;
+          let index = -1;
+          profile.posts.forEach((post, i) => {
+            if (post.url.split(".jpg")[0] === "/posts/post-" + postId) {
+              index = i;
+            }
+          });
           let posts = profile.posts;
           let post = posts[index];
           let postLikes = post.likes;
@@ -788,16 +924,31 @@ app.post("/setComment", jsonParser, (req, res) => {
     } else {
       if (profile.posts) {
         if (profile.posts.length) {
-          let index = profile.posts.length - comment.postId - 1;
+          let index = -1;
+          profile.posts.forEach((post, i) => {
+            if (post.url.split(".jpg")[0] === "/posts/post-" + comment.postId) {
+              index = i;
+            }
+          });
           let posts = profile.posts;
           let post = posts[index];
           let postComments = post.comments ? post.comments : [];
+          let tags = post.tags ? post.tags : [];
+          if (comment.setComUser == comment.getComUser) {
+            let newTags = getTags(comment.text);
+            if (newTags) {
+              newTags.forEach(tag => {
+                if (!tags.includes(tag)) tags.push(tag);
+              });
+            }
+          }
           postComments.push({
             name: comment.setComUser,
             text: comment.text,
             date: getDate(comment.date)
           });
           posts[index].comments = postComments;
+          posts[index].tags = tags;
           users.updateOne(
             { login: profile.login },
             {
@@ -808,10 +959,7 @@ app.post("/setComment", jsonParser, (req, res) => {
             err => {
               if (err) res.send("Не вышло оставить комментарий");
               else {
-                let textNotif = `прокомментировал пост № ${profile.posts
-                  .length -
-                  index -
-                  1}`;
+                let textNotif = `прокомментировал пост № ${comment.postId}`;
                 setNotification(
                   profile.login,
                   comment.setComUser,
@@ -837,17 +985,27 @@ app.post("/setComment", jsonParser, (req, res) => {
   });
 });
 
+function getTags(text) {
+  return text.match(/#[A-Za-zА-Яа-яЁё0-9\_]+/gi);
+}
+
 app.get("/post/:post", (req, res, next) => {
-  let post = req.params.post;
+  let postId = req.params.post;
   let cookies = parseCookies(req);
-  if (post) {
-    let login = post.split("__")[0];
-    let postId = post.split("__")[1];
-    if (!login || !postId) {
+  if (postId) {
+    let login = postId.split("-")[1];
+    if (!login) {
       next();
     } else {
       users.findOne({ login: login }, (err, result) => {
-        if (err || result === null || !result.posts[postId]) {
+        let index = -1;
+        result.posts.forEach((post, i) => {
+          if (post.url.split(".jpg")[0] === "/posts/post-" + postId) {
+            index = i;
+          }
+        });
+        console.log(postId);
+        if (err || result === null || !result.posts[index]) {
           next();
         } else if (cookies.auth === undefined || cookies.auth === "undefined") {
           res.render("pages/singlePost", {
@@ -861,7 +1019,7 @@ app.get("/post/:post", (req, res, next) => {
           res.render("pages/singlePost", {
             header: isUserProfile,
             user: result,
-            isUser: true
+            isUser: false
           });
         } else {
           users.findOne({ authorization: cookies.auth }, (err, myProfile) => {
@@ -980,7 +1138,9 @@ function hammingDistance(hash) {
               });
               similarity = ((similarity / hash.length) * 100).toFixed(2);
               if (similarity > 80) {
-                userSim[`${index}`] = similarity;
+                userSim[
+                  post.url.split("/post-")[1].split(".jpg")[0]
+                ] = similarity;
                 simObj[user.login] = userSim;
               }
             });

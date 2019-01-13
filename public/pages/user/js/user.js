@@ -11,6 +11,8 @@ window.addEventListener("load", () => {
       .join("<")
       .split("&gt;")
       .join(">");
+    desc.innerHTML = getTextWithTags(desc.innerHTML);
+    desc.innerHTML = getTextWithUsers(desc.innerHTML);
     desc.style.display = "block";
   }
   let background = document.getElementById("userBackground");
@@ -27,9 +29,7 @@ if (addNewPost) {
     document.getElementById("likes").style.height = "1px";
     console.log("click");
     document.getElementById("justPost").style.display = "none";
-    document.getElementById("status").innerHTML = "Сходство";
-    document.getElementById("statusLink").style.visibility = "hidden";
-    document.getElementById("similarity").innerHTML = "";
+    document.getElementById("postStatus").innerHTML = "Сходство";
     document.getElementById("hiddenComments").style.display = "none";
     document.getElementById("postDate").style.display = "none";
     document.getElementById("offsetDivider").style.marginTop = "85px";
@@ -44,8 +44,8 @@ if (addNewPost) {
   });
 }
 
-function fetchNow(login, i, start, length, postsContainer) {
-  fetch(`/getPost/${login}/${i}`, {
+function fetchNow(login, i, start, posts, postsContainer) {
+  fetch(`/getPost/${login}/${posts[posts.length - i - 1]}`, {
     method: "GET"
   })
     .then(res => {
@@ -55,20 +55,23 @@ function fetchNow(login, i, start, length, postsContainer) {
       let image = URL.createObjectURL(postImg);
       let postElem = document.createElement("div");
       postElem.setAttribute("class", "postBlock animation");
-      postElem.setAttribute("id", i);
+      postElem.setAttribute("id", posts[posts.length - i - 1]);
       postElem.setAttribute("data-toggle", "modal");
       postElem.setAttribute("data-target", "#post");
       postElem.style.background = `url(${image}) center no-repeat`;
       postElem.style.backgroundSize = "cover";
-      postElem.addEventListener("click", openPost.bind(postElem, image, login));
+      postElem.addEventListener(
+        "click",
+        openPost.bind(postElem, image, login, posts[posts.length - i - 1])
+      );
       postsContainer.appendChild(postElem);
       containerResize();
-      if (length < 12 + start) {
-        if (i < length - 1)
-          fetchNow(login, i + 1, start, length, postsContainer);
+      if (posts.length < 12 + start) {
+        if (i < posts.length - 1)
+          fetchNow(login, i + 1, start, posts, postsContainer);
       } else {
         if (i < 11 + start)
-          fetchNow(login, i + 1, start, length, postsContainer);
+          fetchNow(login, i + 1, start, posts, postsContainer);
       }
     });
 }
@@ -82,8 +85,7 @@ function loadPosts(login, i, start) {
     })
     .then(posts => {
       let postsContainer = document.querySelector(".postsContainer");
-      if (i < posts.length)
-        fetchNow(login, i, start, posts.length, postsContainer);
+      if (i < posts.length) fetchNow(login, i, start, posts, postsContainer);
     });
 }
 
@@ -94,11 +96,14 @@ setInterval(() => {
   if (trigger !== isVisible(postsContainer.lastChild)) {
     trigger = !trigger;
   }
-  if (trigger === true && !((parseInt(postsContainer.lastChild.id) + 1) % 12)) {
+  if (
+    trigger === true &&
+    !(postsContainer.getElementsByClassName("postBlock").length % 12)
+  ) {
     loadPosts(
       login,
-      parseInt(postsContainer.lastChild.id) + 1,
-      parseInt(postsContainer.lastChild.id) + 1
+      postsContainer.getElementsByClassName("postBlock").length,
+      postsContainer.getElementsByClassName("postBlock").length
     );
   }
 }, 1000);

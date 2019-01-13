@@ -6,9 +6,7 @@ let isUserLogin = document
 
 function openPost(image, login, id) {
   let postImg = document.getElementById("postImg");
-  let postId = id ? id : 0;
-  postId = this.id ? this.id : postId;
-  postImg.setAttribute("postid", postId);
+  postImg.setAttribute("postid", id);
   let img = postImg.querySelector(".postImage");
   document.getElementById("justPost").style.display = "block";
   document.getElementById("hiddenComments").style.display = "block";
@@ -26,7 +24,7 @@ function openPost(image, login, id) {
   if (img) postImg.removeChild(img);
 
   document.getElementById("userNamePost").innerHTML = login;
-  postImg.appendChild(resizeToPost(image));
+  postImg.appendChild(resizeToPost(image, 500));
 
   let getheight = setInterval(() => {
     if (postImg.offsetHeight > 0) {
@@ -41,7 +39,7 @@ function openPost(image, login, id) {
   }, 60);
 
   if (isUserLogin.split(/[A-Za-z]/g).length == 1) isUserLogin = "guest";
-  fetch(`/postContent/${login}/${postId}/${isUserLogin}`, {
+  fetch(`/postContent/${login}/${id}/${isUserLogin}`, {
     method: "GET"
   })
     .then(response => {
@@ -53,10 +51,20 @@ function openPost(image, login, id) {
       date.innerHTML = postContent.date;
       likesNum.innerHTML = postContent.likes.length;
       document.getElementById("comments").innerHTML = "";
-      showStatus(postContent.status);
-      postContent.comments.forEach((item, index) => {
-        showComment(item.name, item.text, item.date, index);
-      });
+      let status = document.getElementById("postStatus");
+      status.innerHTML = "";
+      showStatus(postContent.status, status);
+      let comments = document.getElementById("comments");
+      if (postContent.comments.length == 0) {
+        let noComments = document.createElement("div");
+        noComments.setAttribute("class", "noComments");
+        noComments.innerHTML = "Комментариев нет";
+        comments.appendChild(noComments);
+      } else {
+        postContent.comments.forEach((item, index) => {
+          showComment(item.name, item.text, item.date, index, comments);
+        });
+      }
       if (!postContent.userLikes) {
         likeToggler(true);
       } else {
@@ -75,7 +83,7 @@ let userPhotoInterval = setInterval(() => {
   }
 }, 100);
 
-function loadHeader(login, element, type) {
+function loadHeader(login, element, type, indexPost) {
   fetch(`/userProfile/${login}/${type}`, {
     method: "GET"
   })
@@ -93,14 +101,14 @@ function loadHeader(login, element, type) {
           height: 500
         });
         let image = randomImage.png();
-        if (type == "photo") userPhotoUrl = image;
+        if (!indexPost && type == "photo") userPhotoUrl = image;
         if (element.style) {
           element.style.background = `url(${image}) center no-repeat`;
           element.style.backgroundSize = "cover";
         }
       } else {
         let image = URL.createObjectURL(backImg);
-        if (type == "photo") userPhotoUrl = image;
+        if (!indexPost && type == "photo") userPhotoUrl = image;
         if (element.style) {
           element.style.background = `url(${image}) center no-repeat`;
           element.style.backgroundSize = "cover";
@@ -109,28 +117,33 @@ function loadHeader(login, element, type) {
     });
 }
 
-function showStatus(message) {
-  let status = document.getElementById("status");
-  let statusLink = document.getElementById("statusLink");
-  let similarity = document.getElementById("similarity");
+function showStatus(message, elem) {
+  let status = document.createElement("span");
+  status.setAttribute("class", "status");
+  let statusLink = document.createElement("a");
+  statusLink.setAttribute("class", "nav-link statusLink");
+  let similarity = document.createElement("span");
+  similarity.setAttribute("class", "similarity");
   if (message === "original") {
     status.innerHTML = "Оригинал";
     statusLink.style.visibility = "hidden";
     similarity.innerHTML = "";
   } else {
     let user = message.split("___")[0];
-    let post = parseInt(message.split("___")[1]) + 1;
+    let post = message.split("___")[1];
     let sim = parseFloat(message.split("___")[2]);
-    status.innerHTML = "Сходтво с " + post + " постом ";
-    statusLink.setAttribute("href", `/user/${user}`);
-    statusLink.innerHTML = user;
+    status.innerHTML = "Сходтво с ";
+    statusLink.setAttribute("href", `/post/${post}`);
+    statusLink.innerHTML = "постом " + user;
     statusLink.style.visibility = "visible";
     let persColor = (-80 + sim) / 20;
-    console.log(persColor);
     similarity.innerHTML = `: <span style="color: ${getColor(
       persColor
     )}">${sim}%</span>`;
   }
+  elem.appendChild(status);
+  elem.appendChild(statusLink);
+  elem.appendChild(similarity);
 }
 
 function getColor(value) {
@@ -138,9 +151,7 @@ function getColor(value) {
   return ["hsl(", hue, ",50%,50%)"].join("");
 }
 
-function showComment(user, text, date, index) {
-  let comments = document.getElementById("comments");
-
+function showComment(user, text, date, index, comments) {
   let comBlock = document.createElement("div");
   comBlock.setAttribute("id", "commentId_" + index);
   comBlock.setAttribute("class", "comment");
@@ -164,22 +175,26 @@ function showComment(user, text, date, index) {
     .split(">")
     .join("&gt;");
   let linkRegular = /(https?:\/\/|ftp:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim;
-  comValue = comValue
-    .split(" ")
-    .map(word => {
-      for (let i = 1; i < Math.floor(word.length / 25) + 1; i++) {
-        word = word.split("");
-        word.splice(i * 25, 0, "- ");
-        word = word.join("");
-      }
-      return word;
-    })
-    .join(" ");
-
+  comValue = getTextWithTags(comValue);
+  comValue = getTextWithUsers(comValue);
   comValue = comValue.replace(linkRegular, '<a href="$&">$&</a>');
+  // comValue = comValue
+  //   .split(" ")
+  //   .map(word => {
+  //     for (let i = 1; i < Math.floor(word.length / 30) + 1; i++) {
+  //       word = word.split("");
+  //       word.splice(i * 30, 0, " ");
+  //       word = word.join("");
+  //     }
+  //     return word;
+  //   })
+  //   .join(" ");
 
   comText.innerHTML = comValue;
-
+  let noComs = comments.getElementsByClassName("noComments");
+  if (noComs.length > 0) {
+    comments.innerHTML = "";
+  }
   comBlock.appendChild(comInfo);
   comBlock.appendChild(comText);
   comments.appendChild(comBlock);
@@ -260,13 +275,13 @@ function setUnlike(postId) {
   }
 }
 
-function resizeToPost(image) {
+function resizeToPost(image, size) {
   let postImage = document.createElement("img");
   postImage.style.display = "none";
   postImage.setAttribute("class", "postImage");
   postImage.src = image;
 
-  postImage.width = "500";
+  postImage.width = `${size}`;
   postImage.style.display = "block";
   return postImage;
 }

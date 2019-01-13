@@ -72,9 +72,6 @@
       </div>
     </div>
     <div id="postStatus">
-      <span id="status">Сходство</span>
-      <a id="statusLink" class="nav-link"></a>
-      <span id="similarity"></span>
     </div>
     <div id="offsetDivider" class="blueDivider"></div>
     <div id="hiddenComments">
@@ -82,8 +79,8 @@
       </div>
       <% if (header.myLogin) { %>
       <div class="blueDivider"></div>
-      <textarea type="text" id="setComment" maxlength="1000" rows="3" placeholder="Комментарий..."></textarea>
-      <div id="sendComment" class="likeIcons">
+      <textarea type="text" id="setComment" class="setComment" maxlength="1000" rows="3" placeholder="Комментарий..."></textarea>
+      <div id="sendComment" class="likeIcons sendComment">
         <img src="/public/pages/user/icons/send.svg" alt="" width="25">
       </div>
       <% } %>

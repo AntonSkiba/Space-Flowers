@@ -59,7 +59,7 @@ function postImages(file) {
       let imgArea = document.getElementById("loadedImg");
       let lastPost = imgArea.querySelector(".postImage");
       if (lastPost) imgArea.removeChild(lastPost);
-      imgArea.appendChild(resizeToPost(img));
+      imgArea.appendChild(resizeToPost(img, 500));
       loadBlock.style.display = "block";
       imgArea.style.filter = "opacity(50%)";
       document.getElementById("savePost").style.display = "none";
@@ -76,7 +76,9 @@ function postImages(file) {
         })
         .then(mess => {
           console.log(mess);
-          showStatus(mess);
+          let stat = document.getElementById("postStatus");
+          stat.innerHTML = "";
+          showStatus(mess, stat);
           document.getElementById("savePost").style.display = "inline-block";
           loadBlock.style.display = "none";
           imgArea.style.filter = "none";
@@ -121,11 +123,16 @@ if (savePost) {
           return response.text();
         })
         .then(message => {
+          console.log(message);
           document.querySelector(".postsContainer").innerHTML = "";
           loadPosts(login, 0, 0);
           let loadedImgSrc = document.querySelector("#loadedImg .postImage")
             .src;
-          openPost(loadedImgSrc, login, 0);
+          let postId = message.split(" ")[1];
+          postId =
+            postId.split("-")[1] + "-" + postId.split("-")[2].split(".jpg")[0];
+          console.log(postId);
+          openPost(loadedImgSrc, login, postId);
           let postsCount = document.getElementById("postsCount");
           let postsCountNum = parseInt(postsCount.innerHTML);
           postsCount.innerHTML = postsCountNum + 1;
@@ -234,7 +241,8 @@ function sendComment() {
         commentBody.setComUser,
         commentBody.text,
         getDate(commentBody.date),
-        countComments
+        countComments,
+        document.getElementById("comments")
       );
     });
 }

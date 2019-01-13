@@ -13,18 +13,21 @@ if (showNotifsBtn) {
     if (showToggler) showNotifs();
   });
 }
-
-setInterval(() => {
-  fetch(`/getNotifications/${userLogin}`)
-    .then(response => {
-      return response.json();
-    })
-    .then(notifs => {
-      if (notifs.length)
-        document.getElementById("notifsCount").innerHTML = `+${notifs.length}`;
-      else document.getElementById("notifsCount").innerHTML = "";
-    });
-}, 500);
+if (userLogin) {
+  setInterval(() => {
+    fetch(`/getNotifications/${userLogin}`)
+      .then(response => {
+        return response.json();
+      })
+      .then(notifs => {
+        if (notifs.length)
+          document.getElementById("notifsCount").innerHTML = `+${
+            notifs.length
+          }`;
+        else document.getElementById("notifsCount").innerHTML = "";
+      });
+  }, 500);
+}
 
 function showNotifs() {
   fetch(`/getNotifications/${userLogin}`, {
@@ -86,7 +89,7 @@ function showNotifs() {
 }
 
 function getMinPostImage(login, i, postsContainer, notifId) {
-  fetch(`/getPost/${login}/${i}`, {
+  fetch(`/getPost/${login}/${i}-${login}`, {
     method: "GET"
   })
     .then(res => {
@@ -101,6 +104,21 @@ function getMinPostImage(login, i, postsContainer, notifId) {
       postElem.style.backgroundSize = "cover";
       postsContainer.appendChild(postElem);
     });
+}
+
+function getTextWithTags(text) {
+  return text.replace(
+    /#[A-Za-zА-Яа-яЁё0-9\_]+/gi,
+    '<a class="tags" href="/search/$&">$&</a>'
+  );
+}
+
+function getTextWithUsers(text) {
+  text = text.replace(
+    /@[A-Za-zА-Яа-яЁё0-9\_\.\-]+/gi,
+    '<a class="textUserLink" href="/user/$&">$&</a>'
+  );
+  return text.split("@").join("");
 }
 
 function isVisible(elem) {

@@ -1,6 +1,103 @@
 #posts {
-  margin: 150px auto;
-  width: 620px;
+  margin: 100px auto;
+  width: 650px;
+}
+
+.index-post {
+  min-width: 650px !important;
+  width: 650px !important;
+  margin-bottom: 20px;
+  animation: show 1s 1;
+  animation-fill-mode: forwards;
+}
+
+.index-post .justPost .postImg {
+  margin-bottom: 5px;
+}
+
+.index-post .justPost .postStatistic {
+  height: 30px;
+}
+
+.index-post .justPost .postStatistic .countComs {
+  float: left;
+  width: 300px;
+  color: var(--header-color);
+  font-size: 18px;
+}
+
+.index-post .justPost .postComments {
+  max-height: 220px;
+  overflow-y: scroll;
+  margin-top: 10px;
+}
+
+.index-post .justPost .postComments .nav-link {
+  padding: 0 !important;
+  display: inline-block;
+}
+
+.index-post .justPost .postComments .comDate {
+  padding: 0 !important;
+  display: inline-block;
+}
+
+.index-post .justPost .postInfo {
+  height: 70px;
+  margin-bottom: 10px;
+}
+
+.index-post .justPost .postInfo .userPhoto {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  float: left;
+}
+
+.index-post .justPost .postInfo .userPhoto:hover {
+  cursor: pointer;
+}
+
+.index-post .justPost .postInfo .userPostInfo {
+  width: 532px;
+  margin-left: 14px;
+  height: 70px;
+  float: left;
+}
+
+.index-post .justPost .postInfo .userPostInfo .userLink {
+  padding: 0 !important;
+  display: inline-block;
+  line-height: 1;
+  font-size: 24px;
+  font-weight: bold;
+  transition: 0.2s ease-in-out;
+  color: var(--header-color);
+}
+
+.index-post .justPost .postInfo .userPostInfo .postDate {
+  float: right;
+  font-size: 14px;
+  font-weight: bold;
+  color: #93addf;
+  margin-top: 20px;
+}
+
+.index-post .justPost .postInfo .userPostInfo .postSim {
+  opacity: 0.7;
+  font-size: 13px;
+  color: #8c93b6;
+  display: block;
+}
+
+.statusLink {
+  max-width: 300px;
+  padding: 0 !important;
+  display: inline-block !important;
+}
+
+.index-post .justPost .postInfo .userPostInfo .userLink:hover {
+  color: #4665be;
 }
 
 .post {

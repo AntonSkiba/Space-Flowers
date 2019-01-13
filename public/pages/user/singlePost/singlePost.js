@@ -1,25 +1,17 @@
 window.addEventListener("load", () => {
   let user_post = document.URL.split("post/")[1];
-  let login = user_post.split("__")[0];
-  fetch(`/userPosts/${login}`, {
+  let login = user_post.split("-")[1];
+  let postId = user_post;
+
+  loadHeader(login, "", "photo");
+  fetch(`/getPost/${login}/${postId}`, {
     method: "GET"
   })
-    .then(response => {
-      return response.json();
+    .then(res => {
+      return res.blob();
     })
-    .then(posts => {
-      let postId = posts.length - parseInt(user_post.split("__")[1]) - 1;
-
-      loadHeader(login, "", "photo");
-      fetch(`/getPost/${login}/${postId}`, {
-        method: "GET"
-      })
-        .then(res => {
-          return res.blob();
-        })
-        .then(postImg => {
-          let image = URL.createObjectURL(postImg);
-          openPost(image, login, postId);
-        });
+    .then(postImg => {
+      let image = URL.createObjectURL(postImg);
+      openPost(image, login, postId);
     });
 });

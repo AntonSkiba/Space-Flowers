@@ -15,43 +15,52 @@
   width: 235px;
 }
 
-#setComment {
+.setComment {
   height: 60px !important;
   outline: none;
   border: none;
-  width: 235px;
+  width: calc(100% - 10px);
   resize: none;
   font-family: "Roboto", sans-serif;
   font-size: 14px;
   transition: 0.2s ease-in-out;
 }
 
-#setComment::-webkit-scrollbar,
-#comments::-webkit-scrollbar {
+.setComment::-webkit-scrollbar,
+#comments::-webkit-scrollbar,
+.postComments::-webkit-scrollbar {
   width: 10px;
   background-color: #f5f5f5;
 }
 
-#setComment::-webkit-scrollbar-thumb,
-#comments::-webkit-scrollbar-thumb {
+.setComment::-webkit-scrollbar-thumb,
+#comments::-webkit-scrollbar-thumb,
+.postComments::-webkit-scrollbar-thumb {
   border-radius: 10px;
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: var(--header-color);
 }
 
-#setComment::-webkit-scrollbar-track,
-#comments::-webkit-scrollbar-track {
+.setComment::-webkit-scrollbar-track,
+#comments::-webkit-scrollbar-track,
+.postComments::-webkit-scrollbar-track {
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
   background-color: #f5f5f5;
 }
-
-#sendComment {
+.noComments {
+  width: 230px;
+  margin: 10px auto;
+  font-weight: bold;
+  font-size: 24px;
+  color: #d7e1eb;
+}
+.sendComment {
   transition: 0.2s ease-in-out;
   visibility: hidden;
   background-color: rgba(255, 255, 255, 0.8);
   position: absolute;
-  left: 195px;
+  left: calc(100% - 40px);
   bottom: 10px;
 }
 
@@ -87,7 +96,6 @@
 .comInfo .comLink {
   transition: 0.2s ease-in-out;
   padding: 0 !important;
-  width: 150px;
   max-width: 150px;
   float: left;
 }
@@ -95,6 +103,7 @@
 .comInfo .comDate {
   float: left;
   font-size: 11px;
+  float: right;
   margin-top: 6px;
   color: #97a7b3;
 }
@@ -107,8 +116,8 @@
   color: #97a7b3;
 }
 
-#statusLink {
-  max-width: 70px;
+.statusLink {
+  max-width: 130px;
   padding: 0 !important;
   display: inline-block;
 }

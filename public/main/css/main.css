@@ -4,6 +4,11 @@ body {
   --header-color: #0e225d;
   --some-color: #83acec;
   background-color: var(--main-color) !important;
+  font-family: "Roboto", sans-serif;
+}
+
+*::placeholder {
+  color: #b4c7dd;
 }
 
 body::-webkit-scrollbar {
@@ -25,6 +30,13 @@ body::-webkit-scrollbar-track {
     var(--header-color) 71px,
     transparent 71px
   );
+}
+.textUserLink {
+  color: #ffa2a2 !important;
+}
+
+.tags {
+  color: #9958bb !important;
 }
 
 #notifList {
