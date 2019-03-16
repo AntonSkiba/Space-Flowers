@@ -14,21 +14,19 @@ if (showNotifsBtn) {
   });
 }
 if (userLogin) {
-  setInterval(() => {
-    fetch(`/getNotifications/${userLogin}`)
-      .then(response => {
-        return response.json();
-      })
-      .then(notifs => {
-        let length = 0;
-        notifs.forEach(notif => {
-          if (notif.newNotif) length++;
-        });
-        if (length)
-          document.getElementById("notifsCount").innerHTML = `+${length}`;
-        else document.getElementById("notifsCount").innerHTML = "";
+  fetch(`/getNotifications/${userLogin}`)
+    .then(response => {
+      return response.json();
+    })
+    .then(notifs => {
+      let length = 0;
+      notifs.forEach(notif => {
+        if (notif.newNotif) length++;
       });
-  }, 500);
+      if (length)
+        document.getElementById("notifsCount").innerHTML = `+${length}`;
+      else document.getElementById("notifsCount").innerHTML = "";
+    });
 }
 
 function showNotifs() {

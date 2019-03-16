@@ -1047,10 +1047,12 @@ app.get("/getNotifications/:user", (req, res) => {
   let login = req.params.user;
   users.findOne({ login: login }, (err, user) => {
     let notifs = [];
-    if (user.notifs) {
-      user.notifs.forEach((notif, i, array) => {
-        if (notif.newNotif || i > array.length - 10) notifs.push(notif);
-      });
+    if (!err && user !== null) {
+      if (user.notifs) {
+        user.notifs.forEach((notif, i, array) => {
+          if (notif.newNotif || i > array.length - 10) notifs.push(notif);
+        });
+      }
     }
     res.send(notifs);
   });
