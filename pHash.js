@@ -27,7 +27,7 @@ module.exports = function pHash(path) {
         }, 0) / pixels.length
       );
       let hash = [];
-      pixels.forEach(function(px, i) {
+      pixels.forEach((px, i) => {
         if (px > avg) {
           hash[i] = 1;
         } else {
