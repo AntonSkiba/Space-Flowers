@@ -1,24 +1,32 @@
-let login = document
-  .getElementById("username")
-  .innerHTML.split(" ")
-  .join("");
+let isSearch = window.location.toString().includes("search");
+let login = "";
+if (!isSearch) {
+  login = document
+    .getElementById("username")
+    .innerHTML.split(" ")
+    .join("");
+} else {
+  login = decodeURI(window.location.toString().split("search/")[1]);
+}
 
 window.addEventListener("load", () => {
-  let desc = document.getElementById("userDesc");
-  if (desc) {
-    desc.innerHTML = desc.innerHTML
-      .split("&lt;")
-      .join("<")
-      .split("&gt;")
-      .join(">");
-    desc.innerHTML = getTextWithTags(desc.innerHTML);
-    desc.innerHTML = getTextWithUsers(desc.innerHTML);
-    desc.style.display = "block";
+  if (!isSearch) {
+    let desc = document.getElementById("userDesc");
+    if (desc) {
+      desc.innerHTML = desc.innerHTML
+        .split("&lt;")
+        .join("<")
+        .split("&gt;")
+        .join(">");
+      desc.innerHTML = getTextWithTags(desc.innerHTML);
+      desc.innerHTML = getTextWithUsers(desc.innerHTML);
+      desc.style.display = "block";
+    }
+    let background = document.getElementById("userBackground");
+    let photo = document.getElementById("userPhoto");
+    loadHeader(login, background, "background");
+    loadHeader(login, photo, "photo");
   }
-  let background = document.getElementById("userBackground");
-  let photo = document.getElementById("userPhoto");
-  loadHeader(login, background, "background");
-  loadHeader(login, photo, "photo");
   loadPosts(login, 0, 0);
 });
 
@@ -44,7 +52,8 @@ if (addNewPost) {
   });
 }
 
-function fetchNow(login, i, start, posts, postsContainer) {
+function fetchNow(i, start, posts, postsContainer) {
+  let login = posts[posts.length - i - 1].split("-")[1];
   fetch(`/getPost/${login}/${posts[posts.length - i - 1]}`, {
     method: "GET"
   })
@@ -67,17 +76,15 @@ function fetchNow(login, i, start, posts, postsContainer) {
       postsContainer.appendChild(postElem);
       containerResize();
       if (posts.length < 12 + start) {
-        if (i < posts.length - 1)
-          fetchNow(login, i + 1, start, posts, postsContainer);
+        if (i < posts.length - 1) fetchNow(i + 1, start, posts, postsContainer);
       } else {
-        if (i < 11 + start)
-          fetchNow(login, i + 1, start, posts, postsContainer);
+        if (i < 11 + start) fetchNow(i + 1, start, posts, postsContainer);
       }
     });
 }
 
 function loadPosts(login, i, start) {
-  fetch(`/userPosts/${login}`, {
+  fetch(`/${isSearch ? "searchPosts" : "userPosts"}/${login}`, {
     method: "GET"
   })
     .then(response => {
@@ -85,7 +92,16 @@ function loadPosts(login, i, start) {
     })
     .then(posts => {
       let postsContainer = document.querySelector(".postsContainer");
-      if (i < posts.length) fetchNow(login, i, start, posts, postsContainer);
+      if (i < posts.length) fetchNow(i, start, posts, postsContainer);
+      if (!posts.length && isSearch) {
+        let noSearch = document.createElement("div");
+        noSearch.setAttribute("class", "error_page");
+        let noSearchMessage = document.createElement("h1");
+        noSearchMessage.style.background = "var(--main-color)";
+        noSearchMessage.innerHTML = "Ничего не найдено :с";
+        noSearch.appendChild(noSearchMessage);
+        document.querySelector(".user_content").appendChild(noSearch);
+      }
     });
 }
 

@@ -189,12 +189,18 @@
 }
 
 .descriptionPost #userNamePost {
+  text-decoration: none;
+  transition: 0.2s ease-in-out;
   width: 100px;
   margin: 0 10px;
   float: left;
   color: var(--header-color);
   font-size: 20px;
   font-weight: bold;
+}
+
+.descriptionPost #userNamePost:hover {
+  color: #4665be;
 }
 .descriptionPost .blueDivider {
   width: 235px;

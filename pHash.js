@@ -7,7 +7,7 @@ module.exports = function pHash(path) {
       let data = info.data;
 
       let pixels = [];
-      let size = 128;
+      let size = 64;
       for (let i = 0; i < data.length; i += 4) {
         let j = i == 0 ? 0 : i / 4;
         let y = Math.floor(j / size);
@@ -34,6 +34,18 @@ module.exports = function pHash(path) {
           hash[i] = 0;
         }
       });
+
+      // let newHash = [];
+      // for (let i = 0; i < hash.length; i++) {
+      //   if (i === 0) {
+      //     newHash.push(1);
+      //   } else if (hash[i] === hash[i - 1]) {
+      //     newHash[newHash.length - 1]++;
+      //   } else {
+      //     newHash.push(1);
+      //   }
+      // }
+
       resolve(hash);
     });
   });

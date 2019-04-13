@@ -30,6 +30,7 @@
     "express": "^4.16.4",
     "get-image-data": "^3.0.1",
     "inkjet": "^2.1.2",
+    "jimp": "^0.6.0",
     "looks-same": "^4.1.0",
     "mnist": "git+https://github.com/ApelSYN/mnist.git",
     "mongodb": "^3.1.10",

@@ -5,6 +5,38 @@ let userLogin = document
   .split(" ")
   .join("");
 
+let searchString = document.getElementById("searchString");
+let searchButton = document.getElementById("searchButton");
+searchString.addEventListener("input", () => {
+  let realValue = searchString.value
+    .split("\n")
+    .join("")
+    .split(" ")
+    .join("");
+  if (realValue) searchButton.style.display = "block";
+  else searchButton.style.display = "none";
+});
+
+searchButton.addEventListener("click", () => {
+  searchLocation(searchString.value);
+});
+
+searchString.addEventListener("keydown", button => {
+  if (button.keyCode === 13) searchLocation(searchString.value);
+});
+
+function searchLocation(value) {
+  let realValue = value
+    .split("\n")
+    .join("")
+    .split(" ")
+    .join("");
+
+  if (realValue) {
+    window.location.href = `/search/${searchString.value.split("#").join("")}`;
+  }
+}
+
 let showNotifsBtn = document.getElementById("notifDropdown");
 let showToggler = false;
 if (showNotifsBtn) {
@@ -14,21 +46,19 @@ if (showNotifsBtn) {
   });
 }
 if (userLogin) {
-  setInterval(() => {
-    fetch(`/getNotifications/${userLogin}`)
-      .then(response => {
-        return response.json();
-      })
-      .then(notifs => {
-        let length = 0;
-        notifs.forEach(notif => {
-          if (notif.newNotif) length++;
-        });
-        if (length)
-          document.getElementById("notifsCount").innerHTML = `+${length}`;
-        else document.getElementById("notifsCount").innerHTML = "";
+  fetch(`/getNotifications/${userLogin}`)
+    .then(response => {
+      return response.json();
+    })
+    .then(notifs => {
+      let length = 0;
+      notifs.forEach(notif => {
+        if (notif.newNotif) length++;
       });
-  }, 500);
+      if (length)
+        document.getElementById("notifsCount").innerHTML = `+${length}`;
+      else document.getElementById("notifsCount").innerHTML = "";
+    });
 }
 
 function showNotifs() {
@@ -113,10 +143,11 @@ function getMinPostImage(login, i, postsContainer, notifId) {
 }
 
 function getTextWithTags(text) {
-  return text.replace(
+  text = text.replace(
     /#[A-Za-zА-Яа-яЁё0-9\_]+/gi,
     '<a class="tags" href="/search/$&">$&</a>'
   );
+  return text.replace("#", "");
 }
 
 function getTextWithUsers(text) {

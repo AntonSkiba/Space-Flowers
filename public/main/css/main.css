@@ -126,6 +126,39 @@ body::-webkit-scrollbar-track {
   position: fixed !important;
 }
 
+.header .search_field {
+  position: relative;
+  background-color: white;
+  height: 30px;
+  margin: 5px 0 0 10px;
+  border-radius: 20px;
+  width: 250px;
+  padding: 2px 15px;
+  float: left;
+}
+
+.header .search_field #searchButton {
+  display: none;
+  width: 45px;
+  position: absolute;
+  top: -7px;
+  left: 210px;
+  transition: 0.5s ease-in-out;
+}
+
+.header .search_field #searchButton:hover {
+  cursor: pointer;
+}
+
+.header .search_field #searchString {
+  color: #2b448e;
+  background: none;
+  width: 90%;
+  border: none;
+  outline: none;
+  font-weight: bold;
+}
+
 .header .header_link {
   color: white;
 }

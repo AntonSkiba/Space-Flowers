@@ -23,7 +23,10 @@ function openPost(image, login, id) {
 
   if (img) postImg.removeChild(img);
 
-  document.getElementById("userNamePost").innerHTML = login;
+  let namePost = document.getElementById("userNamePost");
+  namePost.innerHTML = login;
+  namePost.setAttribute("href", `/user/${login}`);
+  namePost.setAttribute("class", "userLinkPost");
   postImg.appendChild(resizeToPost(image, 500));
 
   let getheight = setInterval(() => {

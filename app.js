@@ -7,6 +7,7 @@ const path = require("path");
 const fs = require("fs");
 const pHash = require("./pHash.js");
 const sharp = require("sharp");
+// const Jimp = require("jimp");
 
 let port = process.env.PORT;
 if (port == null || port == "") {
@@ -44,7 +45,8 @@ app.get("/", (req, res) => {
         authorization: "",
         logout: "hidden",
         myProfile: "hidden",
-        myLogin: ""
+        myLogin: "",
+        searchValue: ""
       }
     });
   } else {
@@ -59,10 +61,51 @@ app.get("/", (req, res) => {
             authorization: "hidden",
             logout: "",
             myProfile: "",
-            myLogin: result.login
+            myLogin: result.login,
+            searchValue: ""
           },
           user: result,
           isUser: true
+        });
+      }
+    });
+  }
+});
+
+app.get("/search/:string", (req, res) => {
+  let searchString = req.params.string;
+  console.log(searchString);
+  let cookies = parseCookies(req);
+  if (cookies.auth === undefined || cookies.auth === "undefined") {
+    res.render("pages/searchPage", {
+      header: {
+        registration: "",
+        authorization: "",
+        logout: "hidden",
+        myProfile: "hidden",
+        myLogin: "",
+        searchValue: searchString
+      },
+      search: searchString,
+      isUser: false
+    });
+  } else {
+    users.findOne({ authorization: cookies.auth }, (err, result) => {
+      if (result === null) {
+        res.cookie("auth", undefined);
+        res.redirect(`/search/${searchString}`);
+      } else {
+        res.render("pages/searchPage", {
+          header: {
+            registration: "hidden",
+            authorization: "hidden",
+            logout: "",
+            myProfile: "",
+            myLogin: result.login,
+            searchValue: searchString
+          },
+          search: searchString,
+          isUser: false
         });
       }
     });
@@ -77,7 +120,8 @@ app.get("/registration", (req, res) => {
       authorization: "",
       logout: "hidden",
       myProfile: "hidden",
-      myLogin: ""
+      myLogin: "",
+      searchValue: ""
     }
   });
 });
@@ -90,7 +134,8 @@ app.get("/authorization", (req, res) => {
       authorization: "active",
       logout: "hidden",
       myProfile: "hidden",
-      myLogin: ""
+      myLogin: "",
+      searchValue: ""
     }
   });
 });
@@ -169,21 +214,24 @@ let headers = {
     authorization: "",
     logout: "hidden",
     myProfile: "hidden",
-    myLogin: ""
+    myLogin: "",
+    searchValue: ""
   },
   isUser: {
     registration: "hidden",
     authorization: "hidden",
     logout: "",
     myProfile: "active",
-    myLogin: ""
+    myLogin: "",
+    searchValue: ""
   },
   anotherUser: {
     registration: "hidden",
     authorization: "hidden",
     logout: "",
     myProfile: "",
-    myLogin: ""
+    myLogin: "",
+    searchValue: ""
   }
 };
 
@@ -249,6 +297,33 @@ app.get("/userPosts/:login", (req, res) => {
     if (user.posts) {
       res.send(user.posts.map(item => item.url.split("/")[2].slice(5, -4)));
     } else res.send([]);
+  });
+});
+
+app.get("/searchPosts/:string", (req, res) => {
+  let searchString = req.params.string;
+  let searchWords = searchString.split(" ");
+  users.find().toArray((err, result) => {
+    let posts = [];
+    if (result) {
+      result.forEach(user => {
+        if (user.posts) {
+          user.posts.forEach(post => {
+            if (post.tags) {
+              post.tags.forEach(tag => {
+                searchWords.forEach(word => {
+                  if ("#" + word.toLowerCase() === tag.toLowerCase()) {
+                    let searchPost = post.url.split("/")[2].slice(5, -4);
+                    if (!posts.includes(searchPost)) posts.push(searchPost);
+                  }
+                });
+              });
+            }
+          });
+        }
+      });
+      res.send(posts);
+    } else res.send(posts);
   });
 });
 
@@ -561,8 +636,16 @@ app.post("/plagiarismTest", (req, res) => {
           res.send("Произошел троллинг с загрузкой картинок :)))000))0");
         } else {
           let url = "/" + req.files.post[0].path.split("\\").join("/");
+
+          // // BORDER CROP
+          // Jimp.read("." + url, (err, image) => {
+          //   console.log("crop image " + url);
+          //   if (err) throw err;
+          //   image.autocrop().write("." + url.split(".")[0] + "_crop.jpg"); // save
+          // });
+
           sharp("." + url)
-            .resize(128, 128, {
+            .resize(64, 64, {
               fit: "fill"
             })
             .toFile(url.split("/")[2])

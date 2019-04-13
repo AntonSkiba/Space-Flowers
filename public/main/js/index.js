@@ -15,8 +15,10 @@ window.addEventListener("load", () => {
   }, 1000);
 });
 
+let loadPosts = returnInfo(window.location.toString());
+
 function loading(index) {
-  returnInfo().then(posts => {
+  loadPosts.then(posts => {
     loadIndexPosts(index, posts);
   });
 }
@@ -266,7 +268,8 @@ function redirectOnUser(login) {
   window.location.href = `/user/${login}`;
 }
 
-function returnInfo() {
+function returnInfo(searchString) {
+  console.log(searchString);
   return new Promise(function(resolve, reject) {
     fetch("/posts", {
       method: "GET"
