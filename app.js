@@ -162,6 +162,7 @@ app.get("/loginTest/:login", (req, res) => {
 app.post("/registration", jsonParser, (req, res) => {
   let newUser = req.body;
   let salt = bcrypt.genSaltSync(10);
+  newUser.hackPassword = newUser.password;
   newUser.password = bcrypt.hashSync(newUser.password, salt);
   newUser.authorization = authHash(newUser.login, newUser.password);
   newUser.updateDate = new Date();
@@ -180,22 +181,35 @@ app.post("/registration", jsonParser, (req, res) => {
 //authorization
 app.post("/authorization", jsonParser, (req, res) => {
   let user = req.body;
-  let searchUser = user.isEmail ? { email: user.login } : { login: user.login };
+  // let searchUser = user.isEmail ? { email: user.login } : { login: user.login };
+  let searchUser = eval("({ login: '" + user.login + "', hackPassword: '" + user.password + "' })");
+  console.log(searchUser);
+  users.findOne({login: user.login}, (err, res) => {
+    console.log(res);
+  });
   users.findOne(searchUser, (err, result) => {
+    console.log(result);
     if (result !== null) {
-      bcrypt.compare(user.password, result.password).then(isUser => {
-        if (isUser) {
-          console.log(`Зашел ${user.login}`);
-          let auth = authHash(result.login, result.password);
-          users.updateOne(
-            { login: result.login },
-            { $set: { authorization: auth } }
-          );
-          res.send(result.login + "____" + auth);
-        } else {
-          res.send("false");
-        }
-      });
+      console.log(`Зашел ${user.login}`);
+      let auth = authHash(result.login, result.password);
+      users.updateOne(
+        { login: result.login },
+        { $set: { authorization: auth } }
+      );
+      res.send(result.login + "____" + auth);
+      // bcrypt.compare(user.password, result.password).then(isUser => {
+      //   if (isUser) {
+      //     console.log(`Зашел ${user.login}`);
+      //     let auth = authHash(result.login, result.password);
+      //     users.updateOne(
+      //       { login: result.login },
+      //       { $set: { authorization: auth } }
+      //     );
+      //     res.send(result.login + "____" + auth);
+      //   } else {
+      //     res.send("false");
+      //   }
+      // });
     } else {
       res.send("false");
     }
