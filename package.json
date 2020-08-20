@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/AntonSkiba/Space-Cat#readme",
   "dependencies": {
-    "bcrypt": "^3.0.2",
+    "bcrypt": "^5.0.0",
     "body-parser": "^1.18.3",
     "brain.js": "^1.6.0",
     "canvas": "^2.2.0",
