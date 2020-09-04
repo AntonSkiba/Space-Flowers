@@ -33,7 +33,7 @@
     "jimp": "^0.6.0",
     "looks-same": "^4.1.0",
     "mnist": "git+https://github.com/ApelSYN/mnist.git",
-    "mongodb": "^3.1.10",
+    "mongodb": "^3.1.13",
     "multer": "^1.4.1",
     "pixel-util": "0.0.2",
     "sharp": "^0.21.1"
